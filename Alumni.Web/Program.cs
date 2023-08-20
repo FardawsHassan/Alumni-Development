@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuth
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 
