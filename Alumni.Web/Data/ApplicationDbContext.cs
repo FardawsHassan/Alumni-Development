@@ -21,6 +21,7 @@ namespace Alumni.Web.Data
                 .HasColumnName("Profile_ID");
                 
                 entity.Property(e => e.UserId)
+                .HasColumnType("nvarchar(max)")
                 .HasColumnName("User_ID")
                 .IsRequired();
 
@@ -34,7 +35,6 @@ namespace Alumni.Web.Data
 
                 entity.Property(e => e.Gender)
                     .HasColumnType("nvarchar(20)")
-                    .HasDefaultValue(Gender.Male)
                     .HasConversion(new EnumToStringConverter<Gender>()); ;
 ;
 

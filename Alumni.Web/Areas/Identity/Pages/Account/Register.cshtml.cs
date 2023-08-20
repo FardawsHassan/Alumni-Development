@@ -10,6 +10,8 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using Alumni.Web.Data;
+using Alumni.Web.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -29,13 +31,15 @@ namespace Alumni.Web.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly Services.IEmailSender _emailSender;
+        private readonly ApplicationDbContext _db;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            Services.IEmailSender emailSender)
+            Services.IEmailSender emailSender,
+            ApplicationDbContext db)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -43,6 +47,7 @@ namespace Alumni.Web.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _db = db;
         }
 
         /// <summary>
@@ -133,6 +138,14 @@ namespace Alumni.Web.Areas.Identity.Pages.Account
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>.");
+
+                    Profile profile = new()
+                    {
+                        UserId = userId,
+                        Email = Input.Email,
+                    };
+                    await _db.Profiles.AddAsync(profile);
+                    await _db.SaveChangesAsync();
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
