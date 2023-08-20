@@ -3,7 +3,7 @@
     public class Profile
     {
         public int Id { get; set; }
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
         public string? FullName { get; set; }
         public string? NickName { get; set; }
         public Gender? Gender { get; set; }
@@ -11,7 +11,7 @@
         public string? PhotoPath { get; set; }
 
         public ICollection<PhoneNumber> PhoneNumbers { get; set; }
-        public string Email { get; set; }
+        public string? Email { get; set; }
         public string? GithubUrl { get; set; }
         public string? LinkedInUrl { get; set; }
         public string? FacebookUrl { get; set; }

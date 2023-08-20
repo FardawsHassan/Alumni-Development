@@ -1,4 +1,8 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject AuthenticationStateProvider AuthencationStateProvider
+@inject NavigationManager NavigationManager
+@using Alumni.Web.Services
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Alumni.Web</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -15,7 +19,7 @@
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="profile/edit" Match="NavLinkMatch.All">
+            <NavLink class="nav-link" href=@($"profile/edit/{profileId}") Match="NavLinkMatch.All">
                 <span class="oi oi-plus" aria-hidden="true"></span> Edit Profile
             </NavLink>
         </div>
@@ -23,9 +27,31 @@
 </div>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> _authenticationState { get; set; }
+    [Inject]
+    private IProfileService ProfileService { get; set; }
+
     private bool collapseNavMenu = true;
+    public string userEmail { get; set; } = string.Empty;
+    public int? profileId { get; set; } = null;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        var user = (await _authenticationState).User;
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            userEmail = user.Identity.Name ?? "";
+            profileId = await ProfileService.GetProfileIdByEmail(userEmail);
+        }
+        else
+        {
+            NavigationManager.NavigateTo("Identity/Account/Login", forceLoad: true);
+        }
+    }
 
     private void ToggleNavMenu()
     {

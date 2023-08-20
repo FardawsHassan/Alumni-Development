@@ -1,7 +1,8 @@
-﻿@page "/profile/edit"
+﻿@page "/profile/edit/{ProfileId:int}"
 
 <h3>ProfileEdit</h3>
 
 @code {
-
+	[Parameter]
+	public int ProfileId { get; set; }
 }

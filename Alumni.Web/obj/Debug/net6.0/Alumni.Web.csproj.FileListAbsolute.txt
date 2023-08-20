@@ -257,3 +257,5 @@ G:\Blazor\Alumni-Deveplopment\Alumni.Web\obj\Debug\net6.0\refint\Alumni.Web.dll
 G:\Blazor\Alumni-Deveplopment\Alumni.Web\obj\Debug\net6.0\Alumni.Web.pdb
 G:\Blazor\Alumni-Deveplopment\Alumni.Web\obj\Debug\net6.0\Alumni.Web.genruntimeconfig.cache
 G:\Blazor\Alumni-Deveplopment\Alumni.Web\obj\Debug\net6.0\ref\Alumni.Web.dll
+G:\Blazor\Alumni-Deveplopment\Alumni.Web\bin\Debug\net6.0\AutoMapper.dll
+G:\Blazor\Alumni-Deveplopment\Alumni.Web\bin\Debug\net6.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
