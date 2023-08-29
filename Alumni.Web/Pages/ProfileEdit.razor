@@ -1,8 +1,332 @@
 ﻿@page "/profile/edit/{ProfileId:int}"
+@inject IProfileService _profileService
 
-<h3>ProfileEdit</h3>
+<EditForm Model="@_profile" OnValidSubmit="Submit">
+
+    <MudText Class="pb-1" Color="Color.Primary">Basic Details</MudText>
+    <MudGrid>
+        <MudItem xs="6">
+            <MudTextField @bind-Value="_profile.FullName" Label="Full Name" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="6">
+            <MudTextField @bind-Value="_profile.NickName" Label="Nick Name" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="4">
+            <MudSelect @bind-Value="_profile.Gender" Margin="Margin.Dense" T="Gender?" Variant="Variant.Outlined" Label="Select Gender">
+            @foreach (Gender gender in Enum.GetValues(typeof(Gender)))
+            {
+                <MudSelectItem T="Gender?" Value="gender">@gender</MudSelectItem>
+            }
+            </MudSelect>
+        </MudItem>
+         <MudItem xs="4">
+            <MudDatePicker @bind-Date="_profile.BirthDate" Label="Birth Date" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="4">
+            <MudTextField @bind-Value="_profile.PhotoPath" Label="Image Url" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="6">
+            <MudTextField @bind-Value="_profile.CurrentAddress" Label="Current Address" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="6">
+            <MudTextField @bind-Value="_profile.PermanantAddress" Label="Permanant Address" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+    </MudGrid>
+
+    <MudText Class="pb-1 pt-4" Color="Color.Primary">Contact Details</MudText>
+    <MudGrid>
+        <MudItem xs="6">
+            <MudTextField @bind-Value="_profile.Email" Label="Email" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="6">
+            <MudTextField @bind-Value="_profile.FacebookUrl" Label="Facebook Uri" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="6">
+            <MudTextField @bind-Value="_profile.GithubUrl" Label="Github Uri" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="6">
+            <MudTextField @bind-Value="_profile.LinkedInUrl" Label="LinkedIn Uri" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+    </MudGrid>
+
+
+    <MudText Class="pb-1 pt-4" Color="Color.Primary">Department Details</MudText>
+    <MudGrid>
+        <MudItem xs="4">
+            <MudTextField @bind-Value="_profile.Roll" Label="Roll" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="4">
+            <MudTextField @bind-Value="_profile.Batches" Label="Batches" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="4">
+            <MudTextField @bind-Value="_profile.Session" Label="Session" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="4">
+            <MudCheckBox @bind-Checked="_profile.isCurrentStudent">Current Student</MudCheckBox>
+        </MudItem>
+        <MudItem xs="4">
+            <MudCheckBox @bind-Checked="_profile.isRenowned">Renowned</MudCheckBox>
+        </MudItem>
+        <MudItem xs="4">
+            <MudCheckBox @bind-Checked="_profile.isApproved">Approved</MudCheckBox>
+        </MudItem>
+    </MudGrid>
+
+    <MudText Class="pt-4" Color="Color.Primary">Optional Information</MudText>
+    <MudCheckBox Class="pt-1" @bind-Checked="_isPhoneNumber">Phone Numbers</MudCheckBox>
+    @if (_isPhoneNumber)
+    {
+        @foreach (var phone in _profile.PhoneNumbers)
+        {
+            <MudTextField Class="pb-2" @bind-Value="phone.Phone_Number" Label="Phone Number" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        }
+        <MudItem Class="pt-2">
+            <MudButton ButtonType="ButtonType.Button" Color="Color.Info" OnClick="AddPhone" Variant="Variant.Filled"><MudText>Add Phone Number</MudText></MudButton>
+        </MudItem>
+    }
+
+    <MudCheckBox Class="pt-2" @bind-Checked="_isPostGraduation">Post Graduations</MudCheckBox>
+    @if (_isPostGraduation)
+    {
+        <MudGrid>
+            @foreach (var postgraduation in _profile.PostGrads)
+            {
+                <MudItem xs="4">
+                    <MudTextField @bind-Value="postgraduation.PostGradField" Label="Post Graduation Field" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="4">
+                    <MudTextField @bind-Value="postgraduation.PostGradUniversity" Label="Post Graduation University" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="4">
+                    <MudTextField @bind-Value="postgraduation.PostGradDegree" Label="Post Graduation Degree" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+            }
+        </MudGrid>
+        <MudItem Class="pt-2">
+            <MudButton ButtonType="ButtonType.Button" Color="Color.Info" OnClick="AddPostGraduation" Variant="Variant.Filled"><MudText>Add Post Graduation</MudText></MudButton>
+        </MudItem>
+    }
+   
+    <MudCheckBox Class="pt-2" @bind-Checked="_isBusiness">Businesses</MudCheckBox>
+    @if (_isBusiness)
+    {
+        <MudGrid>
+            @foreach (var business in _profile.Businesses)
+            {
+                <MudItem xs="4">
+                    <MudTextField @bind-Value="business.BusinessType" Label="Business Type" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="4">
+                    <MudDatePicker @bind-Date="business.StartDate" Label="Start Date" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="4">
+                    <MudDatePicker @bind-Date="business.EndDate" Label="End Date" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+            }
+        </MudGrid>
+        <MudItem Class="pt-2">
+            <MudButton ButtonType="ButtonType.Button" Color="Color.Info" OnClick="AddBusiness" Variant="Variant.Filled"><MudText>Add Business</MudText></MudButton>
+        </MudItem>
+    }
+
+    <MudCheckBox Class="pt-2" @bind-Checked="_isGovtJob">Government Jobs</MudCheckBox>
+    @if (_isGovtJob)
+    {
+        <MudGrid>
+            @foreach (var govtJob in _profile.GovtJobs)
+            {
+                <MudItem xs="6">
+                    <MudTextField @bind-Value="govtJob.Organization" Label="Organization Name" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="6">
+                    <MudTextField @bind-Value="govtJob.Designation" Label="Designation" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="6">
+                    <MudDatePicker @bind-Date="govtJob.StartDate" Label="Job Start Date" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="6">
+                    <MudDatePicker @bind-Date="govtJob.EndDate" Label="Job End Date" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+            }
+        </MudGrid>
+        <MudItem Class="pt-2">
+            <MudButton ButtonType="ButtonType.Button" Color="Color.Info" OnClick="AddGovtJob" Variant="Variant.Filled"><MudText>Add Government Job</MudText></MudButton>
+        </MudItem>
+    }
+
+    <MudCheckBox Class="pt-2" @bind-Checked="_isPrivateJob">Private Jobs</MudCheckBox>
+    @if (_isPrivateJob)
+    {
+        <MudGrid>
+            @foreach (var privateJob in _profile.PrivateJobs)
+            {
+                <MudItem xs="6">
+                    <MudTextField @bind-Value="privateJob.Organization" Label="Organization Name" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="6">
+                    <MudTextField @bind-Value="privateJob.Designation" Label="Designation" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="6">
+                    <MudDatePicker @bind-Date="privateJob.StartDate" Label="Job Start Date" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="6">
+                    <MudDatePicker @bind-Date="privateJob.EndDate" Label="Job End Date" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+            }
+        </MudGrid>
+        <MudItem Class="pt-2">
+            <MudButton ButtonType="ButtonType.Button" Color="Color.Info" OnClick="AddPrivateJob" Variant="Variant.Filled"><MudText>Add Private Job</MudText></MudButton>
+        </MudItem>
+    }
+
+    <MudCheckBox Class="pt-2" @bind-Checked="_isFreelance">Freelance</MudCheckBox>
+    @if (_isFreelance)
+    {
+        <MudGrid>
+            <MudItem xs="4">
+                <MudTextField @bind-Value="_profile.Freelance.WorkingFields" Label="Working Fields" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudItem>
+            <MudItem xs="4">
+                <MudDatePicker @bind-Date="_profile.Freelance.StartDate" Label="Freelance Start Date" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudItem>
+            <MudItem xs="4">
+                <MudDatePicker @bind-Date="_profile.Freelance.EndDate" Label="Freelance End Date" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudItem>
+        </MudGrid>
+    }
+
+    <MudCheckBox Class="pt-2" @bind-Checked="_profile.isUnemployeed">Unemployeed</MudCheckBox>
+
+    <MudItem Class="pt-10 pb-5 d-flex justify-end align-center">
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Success"><MudText>Submit</MudText></MudButton>
+    </MudItem>
+</EditForm>
 
 @code {
-	[Parameter]
-	public int ProfileId { get; set; }
+    [Parameter]
+    public int ProfileId { get; set; }
+
+    private Profile _profile { get; set; } = new();
+    private bool _isPhoneNumber { get; set; } = false;
+    private bool _isPostGraduation { get; set; } = false;
+    private bool _isBusiness { get; set; } = false;
+    private bool _isGovtJob { get; set; } = false;
+    private bool _isPrivateJob { get; set; } = false;
+    private bool _isFreelance { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _profile.PhoneNumbers = new List<PhoneNumber>();
+            _profile.PostGrads = new List<PostGrad>();
+            _profile.Businesses = new List<Business>();
+            _profile.GovtJobs = new List<GovtJob>();
+            _profile.PrivateJobs = new List<PrivateJob>();
+            _profile.Freelance = new();
+
+            _profile = await _profileService.GetProfileById(ProfileId);
+
+
+            if (_profile.PhoneNumbers is null)
+            {
+                _profile.PhoneNumbers = new List<PhoneNumber>();
+                _profile.PhoneNumbers.Add(new PhoneNumber());
+            }
+
+            if (_profile.PostGrads is null)
+            {
+                _profile.PostGrads = new List<PostGrad>();
+                _profile.PostGrads.Add(new PostGrad());
+            }
+
+            if (_profile.Businesses is null)
+            {
+                _profile.Businesses = new List<Business>();
+                _profile.Businesses.Add(new Business());
+            }
+
+            if (_profile.GovtJobs is null)
+            {
+                _profile.GovtJobs = new List<GovtJob>();
+                _profile.GovtJobs.Add(new GovtJob());
+            }
+
+            if (_profile.PrivateJobs is null)
+            {
+                _profile.PrivateJobs = new List<PrivateJob>();
+                _profile.PrivateJobs.Add(new PrivateJob());
+            }
+
+            if(_profile.Freelance is null)
+            {
+                _profile.Freelance = new();
+            }
+
+            if(_profile.isUnemployeed is null)
+            {
+                _profile.isUnemployeed = false;
+            }
+
+            if(_profile.isCurrentStudent is null)
+            {
+                _profile.isCurrentStudent = false;
+            }
+
+            if(_profile.isRenowned is null)
+            {
+                _profile.isRenowned = false;
+            }
+
+            if (_profile.isApproved is null)
+            {
+                _profile.isApproved = false;
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    private async Task AddPhone()
+    {
+        _profile.PhoneNumbers.Add(new PhoneNumber());
+    }
+
+    private async Task AddPostGraduation()
+    {
+        _profile.PostGrads.Add(new PostGrad());
+    }
+
+    private async Task AddBusiness()
+    {
+        _profile.Businesses.Add(new Business());
+    }
+
+    private async Task AddGovtJob()
+    {
+        _profile.GovtJobs.Add(new GovtJob());
+    }
+
+    private async Task AddPrivateJob()
+    {
+        _profile.PrivateJobs.Add(new PrivateJob());
+    }
+
+    private async Task Submit(EditContext context)
+    {
+        bool isValid = context.Validate();
+        if (isValid)
+        {
+            var response = await _profileService.UpdateProfile(ProfileId, _profile);
+            if (response.isSuccess)
+            {
+                Console.WriteLine(response.Message);
+            }
+            else
+            {
+                Console.WriteLine(response.Message);
+            }
+        }
+    }
 }
