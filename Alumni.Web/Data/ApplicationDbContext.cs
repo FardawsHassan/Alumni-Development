@@ -210,6 +210,10 @@ namespace Alumni.Web.Data
                     .HasColumnName("Profile_ID")
                     .IsRequired();
 
+                entity.Property(e => e.IsActive)
+                    .HasDefaultValue(false)
+                    .IsRequired();
+
                 entity.Property(e => e.StartDate)
                     .HasColumnType("datetime2");
                 

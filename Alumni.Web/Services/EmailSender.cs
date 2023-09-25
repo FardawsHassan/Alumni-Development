@@ -16,7 +16,7 @@ namespace Alumni.Web.Services
             {
                 EnableSsl = true,
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential("shuvropust18@gmail.com", "rrpddoyjdcznbhwq")
+                Credentials = new NetworkCredential("shuvropust18@gmail.com", "ifhp foal wubl ubse")
             };
 
             MailMessage mail = new MailMessage(from: "shuvropust18@gmail.com",to: email,subject,message);
