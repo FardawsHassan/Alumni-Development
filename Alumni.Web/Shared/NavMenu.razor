@@ -4,7 +4,7 @@
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Alumni.Web</a>
+        <a class="navbar-brand" href="">CSE Alumni</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -20,7 +20,17 @@
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href=@($"profile/edit/{profileId}") Match="NavLinkMatch.All">
-                <span class="oi oi-plus" aria-hidden="true"></span> Edit Profile
+                <span class="oi oi-pencil" aria-hidden="true"></span> Edit Profile
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href=@($"profile/view/{profileId}") Match="NavLinkMatch.All">
+                <span class="oi oi-eye" aria-hidden="true"></span> View Profile
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="search" Match="NavLinkMatch.All">
+                <span class="oi oi-magnifying-glass" aria-hidden="true"></span> Find Alumni
             </NavLink>
         </div>
     </nav>
