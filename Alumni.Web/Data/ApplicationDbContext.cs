@@ -227,6 +227,99 @@ namespace Alumni.Web.Data
 
                 OnModelCreatingPartial(modelBuilder);
             });
+            
+            modelBuilder.Entity<Event>(entity =>
+            {
+                entity.HasKey(e => new { e.EventId });
+                
+                entity.Property(e => e.EventId)
+                    .HasColumnName("Event_ID");
+
+                entity.Property(e => e.Title)
+                    .HasDefaultValue("")
+                    .IsRequired();
+
+                entity.Property(e => e.PublishedDate)
+                    .HasColumnName("Published_Date")
+                    .HasColumnType("datetime2")
+                    .IsRequired();
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(300);
+
+                OnModelCreatingPartial(modelBuilder);
+            });
+            
+            modelBuilder.Entity<Models.Activity>(entity =>
+            {
+                entity.HasKey(e => new { e.ActivityId });
+                
+                entity.Property(e => e.ActivityId)
+                    .HasColumnName("Activity_ID");
+
+                entity.Property(e => e.Title)
+                    .HasDefaultValue("")
+                    .IsRequired();
+
+                entity.Property(e => e.PublishedDate)
+                    .HasColumnName("Published_Date")
+                    .HasColumnType("datetime2")
+                    .IsRequired();
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(300);
+
+                OnModelCreatingPartial(modelBuilder);
+            });
+            
+            modelBuilder.Entity<Notice>(entity =>
+            {
+                entity.HasKey(e => new { e.NoticeId });
+                
+                entity.Property(e => e.NoticeId)
+                    .HasColumnName("Notice_ID");
+
+                entity.Property(e => e.Title)
+                    .HasDefaultValue("")
+                    .IsRequired();
+
+                entity.Property(e => e.PublishedDate)
+                    .HasColumnName("Published_Date")
+                    .HasColumnType("datetime2")
+                    .IsRequired();
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(300);
+
+                OnModelCreatingPartial(modelBuilder);
+            });
+            
+            modelBuilder.Entity<Photo>(entity =>
+            {
+                entity.HasKey(e => new { e.PhotoId });
+                
+                entity.Property(e => e.EventId)
+                    .HasColumnName("Event_ID");
+                
+                entity.Property(e => e.NoticeId)
+                    .HasColumnName("Notice_ID");
+                
+                entity.Property(e => e.ActivityId)
+                    .HasColumnName("Activity_ID");
+
+                entity.Property(e => e.Caption);
+
+                entity.Property(e => e.UploadDate)
+                    .HasColumnName("Upload_Date")
+                    .HasColumnType("datetime2");
+
+                entity.Property(e => e.PhotoPath)
+                    .HasColumnName("Photo_Path")
+                    .HasMaxLength(300)
+                    .IsRequired();
+
+                OnModelCreatingPartial(modelBuilder);
+            });
 
             modelBuilder.Entity<PhoneNumber>()
                 .HasOne(p => p.Profile)
@@ -264,11 +357,34 @@ namespace Alumni.Web.Data
                 .HasForeignKey<Freelance>(f => f.ProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Photo>()
+             .HasOne(p => p.Event)
+             .WithMany(pn => pn.Photos)
+             .HasForeignKey(f => f.EventId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+
+            modelBuilder.Entity<Photo>()
+                .HasOne(p => p.Activity)
+                .WithMany(pn => pn.Photos)
+                .HasForeignKey(f => f.ActivityId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Photo>()
+                .HasOne(p => p.Notice)
+                .WithMany(pn => pn.Photos)
+                .HasForeignKey(f => f.NoticeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(modelBuilder);
         }
 
         public DbSet<Profile> Profiles { get; set; }
         public DbSet<PhoneNumber> PhoneNumbers { get; set; }
+        public DbSet<Models.Activity> Activities { get; set; }
+        public DbSet<Notice> Notices { get; set; }
+        public DbSet<Event> Events { get; set; }
+        public DbSet<Photo> Photos { get; set; }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }

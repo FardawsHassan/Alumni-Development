@@ -1,0 +1,54 @@
+﻿@page "/admin/member"
+
+<MudGrid Class="pt-4 pl-2 mb-16">
+    <MudItem Class="pl-3" xs="12">
+        <MudBadge Content="3" Overlap="true" Color="Color.Secondary">
+            <MudButton Variant="Variant.Filled" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Person">
+                <MudText>Member Requests</MudText>
+            </MudButton>
+        </MudBadge>
+    </MudItem>
+        <MudItem xs="6" sm="6" md="7" lg="9" xl="10">
+            <MudText Style="margin:auto" Class="pt-1" Typo="Typo.h6">Manage Members</MudText>
+        </MudItem>
+    <MudItem xs="6" sm="6" md="5" lg="3" xl="2" Class="d-flex">
+        <MudItem Style="flex-basis:inherit"></MudItem>
+        <MudSelect Dense Style="max-width:255px; min-width:170px;" @bind-Value="SelectedFilter" Label="Filter" Placeholder="Filter By" AdornmentIcon="@Icons.Material.Filled.FilterList" AdornmentColor="Color.Primary">
+            <MudSelectItem Value="@("All")">All</MudSelectItem>
+            <MudSelectItem Value="@("Session")">Session</MudSelectItem>
+            <MudSelectItem Value="@("Roll")">Roll</MudSelectItem>
+        </MudSelect>
+    </MudItem>
+    @foreach(var item in Enumerable.Range(1,12))
+    {
+        <MudItem lg="2" md="3" sm="4" xs="6">
+            <MudItem Class="d-flex justify-content-center">
+                <MudCard Style="width:200px;">
+                    <MudCardMedia Image="images/defaultProfile.jpg" Height="150" />
+                    <MudItem Class="ml-3 mr-3 pt-2">
+                        @if(item%2==0){
+                            <MudText Typo="Typo.body1">Fardaws Hassan Shuvro</MudText>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.body1">Ashraful Islam Rakib</MudText>
+                        }
+                        <MudText Typo="Typo.overline">Session: 2017 - 2018</MudText>
+                    </MudItem>
+                    <MudCardActions Class="d-flex justify-content-center gap-3 pb-3">
+                        <MudIconButton Variant="Variant.Outlined" Icon="@Icons.Material.Filled.RemoveRedEye" Size="Size.Small" Color="Color.Tertiary" />
+                        <MudIconButton Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Primary" />
+                        <MudIconButton Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Secondary" />
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        </MudItem>
+    }
+    <MudItem xs="12" Class="d-flex justify-content-center">
+        <MudPagination ShowFirstButton="true" ShowLastButton="true" Color=Color.Tertiary Count="11" Class="mt-7" />
+    </MudItem>
+</MudGrid>
+
+@code {
+    public string SelectedFilter { get; set; } = "All";
+}

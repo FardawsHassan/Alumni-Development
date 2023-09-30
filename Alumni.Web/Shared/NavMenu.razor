@@ -11,30 +11,27 @@
     </div>
 </div>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href=@($"profile/edit/{profileId}") Match="NavLinkMatch.All">
-                <span class="oi oi-pencil" aria-hidden="true"></span> Edit Profile
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href=@($"profile/view/{profileId}") Match="NavLinkMatch.All">
-                <span class="oi oi-eye" aria-hidden="true"></span> View Profile
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="search" Match="NavLinkMatch.All">
-                <span class="oi oi-magnifying-glass" aria-hidden="true"></span> Find Alumni
-            </NavLink>
-        </div>
-    </nav>
-</div>
+<MudNavMenu Rounded="true" Color="Color.Tertiary" Margin="Margin.Dense" Class="pa-2">
+    <MudNavLink IconColor="Color.Tertiary" Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+    <MudNavLink IconColor="Color.Tertiary" Href=@($"profile/edit/{profileId}") Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Edit">Edit Profile</MudNavLink>
+    <MudNavLink IconColor="Color.Tertiary" Href="@($"profile/view/{profileId}")" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.RemoveRedEye">View Profile</MudNavLink>
+    <MudNavLink IconColor="Color.Tertiary" Href="/search" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Search">Find Alumni</MudNavLink>
+    <MudNavGroup IconColor="Color.Error" Title="Admin Panel" Icon="@Icons.Material.Filled.AdminPanelSettings" Expanded="true">
+        <MudNavLink Href="/admin/activity" Icon="@Icons.Material.Filled.LocalActivity" IconColor="Color.Info">Acitvity</MudNavLink>
+        <MudNavLink Href="/admin/notice" Icon="@Icons.Material.Filled.Newspaper" IconColor="Color.Info">Notice</MudNavLink>
+        <MudNavLink Href="/admin/event" Icon="@Icons.Material.Filled.Event" IconColor="Color.Info">Events</MudNavLink>
+        <MudNavLink Href="/admin/gallery" Icon="@Icons.Material.Filled.BrowseGallery" IconColor="Color.Info">Gallery</MudNavLink>
+        <MudNavLink Href="/admin/member" Icon="@Icons.Material.Filled.Person2" IconColor="Color.Info">Members</MudNavLink>
+        <MudNavLink Href="/admin/setting" Icon="@Icons.Material.Filled.Settings" IconColor="Color.Info">Settings</MudNavLink>
+    </MudNavGroup>
+</MudNavMenu>
+
+<style>
+    .mud-nav-link{
+        text-decoration: none;
+        color: white;
+    }
+</style>
 
 @code {
     [CascadingParameter]

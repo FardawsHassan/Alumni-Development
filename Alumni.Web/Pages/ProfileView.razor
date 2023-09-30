@@ -1,4 +1,6 @@
 ﻿@page "/profile/view/{ProfileId:int}"
+@inject IProfileService ProfileService
+
 
 <MudGrid>
 	<MudItem>
@@ -108,7 +110,7 @@
 			@foreach (var business in profile.Businesses)
 			{
 				<MudText Class="info"><b>Business Type:</b> @business.BusinessType</MudText>
-				<MudText Class="info mb-3"><span style="font-weight:500">Working</span> from <span style="font-weight:500">@business.StartDate.Value.ToString("yyyy") to @business.EndDate.Value.ToString("yyyy")</span></MudText>
+				<MudText Class="info mb-3"><span style="font-weight:500">Working</span> from <span style="font-weight:500">@(business.StartDate == null ? "" : business.StartDate.Value.ToString("yyyy")) to @(business.EndDate == null ? "" : business.EndDate.Value.ToString("yyyy"))</span></MudText>
 			}
 		}
 
@@ -118,7 +120,7 @@
 			@foreach (var jobs in profile.GovtJobs)
 			{
 				<MudText Class="info"><b>@jobs.Designation</b> at <b>@jobs.Organization</b></MudText>
-				<MudText Class="info mb-3"><span style="font-weight:500">Working</span> from <span style="font-weight:500">@jobs.StartDate!.Value.ToString("yyyy") to @jobs.EndDate!.Value.ToString("yyyy")</span></MudText>
+				<MudText Class="info mb-3"><span style="font-weight:500">Working</span> from <span style="font-weight:500">@(jobs.StartDate == null ? "" : @jobs.StartDate.Value.ToString("yyyy")) to @(jobs.EndDate == null ? "" : @jobs.EndDate.Value.ToString("yyyy"))</span></MudText>
 			}
 		}
 		
@@ -128,15 +130,15 @@
 			@foreach (var jobs in profile.PrivateJobs)
 			{
 				<MudText Class="info"><b>@jobs.Designation</b> at <b>@jobs.Organization</b></MudText>
-				<MudText Class="info mb-3"><span style="font-weight:500">Working</span> from <span style="font-weight:500">@jobs.StartDate!.Value.ToString("yyyy") to @jobs.EndDate!.Value.ToString("yyyy")</span></MudText>
+				<MudText Class="info mb-3"><span style="font-weight:500">Working</span> from <span style="font-weight:500">@(jobs.StartDate == null ? "" : jobs.StartDate.Value.ToString("yyyy")) to @(jobs.EndDate == null ? "" : @jobs.EndDate.Value.ToString("yyyy"))</span></MudText>
 			}
 		}
 		
-		@if (profile.Freelance is not null)
+		@if (profile.Freelance is not null && profile.Freelance.IsActive)
 		{
 			<MudText Class="info-title" Style="font-size:16px;font-weight:600">Freelancer:</MudText>
 			<MudText Class="info"><b>Working Fields: </b> @profile.Freelance.WorkingFields</MudText>
-			<MudText Class="info mb-3"><span style="font-weight:500">Working</span> from <span style="font-weight:500">@profile.Freelance.StartDate!.Value.ToString("yyyy") to @profile.Freelance.EndDate!.Value.ToString("yyyy")</span></MudText>
+			<MudText Class="info mb-3"><span style="font-weight:500">Working</span> from <span style="font-weight:500">@(profile.Freelance.StartDate == null ? "" : profile.Freelance.StartDate.Value.ToString("yyyy")) to @(profile.Freelance.EndDate == null ? "" : profile.Freelance.EndDate.Value.ToString("yyyy"))</span></MudText>
 		}
 
 		@if (profile.isUnemployeed is true)
@@ -172,8 +174,14 @@
 @code {
 	[Parameter]
 	public int ProfileId { get; set; }
+	private Profile profile { get; set; } = new();
 
-	Profile profile = new()
+	protected override async Task OnInitializedAsync()
+	{
+		profile = await ProfileService.GetProfileById(ProfileId);
+	}
+
+	Profile defaultProfile = new()
 		{
 			Batches = Batch.Eleventh.ToString(),
 			BirthDate = DateTime.Parse("02,07,1998"),

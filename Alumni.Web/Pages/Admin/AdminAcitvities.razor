@@ -1,0 +1,34 @@
+﻿@page "/admin/activity"
+
+<MudGrid Class="pt-2 pb-5 pr-3">
+	<MudItem xs="12">
+		<MudButton Style="border: 2px solid darkslategray;" DisableElevation Variant="Variant.Outlined" IconSize="Size.Large" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Error" Size="Size.Medium">New Activity</MudButton>
+	</MudItem>
+    <MudItem xs="10"></MudItem>
+    <MudItem xs="12" Class="pt-2">
+        <MudText Class="pb-1" Typo="Typo.h5">All Activities</MudText>
+    </MudItem>
+    @foreach(var i in Enumerable.Range(1,7))
+    {
+        <MudItem xs="12" sm="6" md="4" lg="3">
+            <MudCard Style="border-radius:3px 3px 8px 8px;">
+                <MudToolBar Style="border-radius:2px 2px 0px 0px;background-color:#1e1e2d;" Class="px-2">
+                    <MudSpacer />
+                    <MudIconButton Icon="@Icons.Material.Outlined.RemoveRedEye" Color="Color.Tertiary" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" Color="Color.Info" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Secondary" />
+                </MudToolBar>
+                <MudCardMedia Image="images/defaultImages/articleDefault.jpg" Height="130" />
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">Old Paint</MudText>
+                    <MudText Typo="Typo.body2">Old paint found on a stone house door.</MudText>
+                    <MudText Typo="Typo.body2">This photo was taken in a small village in Istra Croatia.</MudText>
+                </MudCardContent>
+            </MudCard>
+	    </MudItem>
+    }
+</MudGrid>
+
+@code {
+
+}
