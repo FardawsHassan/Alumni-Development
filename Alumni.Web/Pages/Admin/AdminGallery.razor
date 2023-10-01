@@ -1,31 +1,29 @@
 ﻿@page "/admin/gallery"
+@inject IGalleryService _galleryService
+@inject ISnackbar _snackBar
 
 <MudGrid Class="pt-2 pb-5 pr-2">
     <MudItem xs="12">
-        <MudButton Style="border: 2px solid darkslategray;" DisableElevation Variant="Variant.Outlined" IconSize="Size.Large" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Error" Size="Size.Medium">Add Photo</MudButton>
+        <MudButton Style="border: 2px solid darkslategray;" DisableElevation Variant="Variant.Outlined" IconSize="Size.Large" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Error" Size="Size.Medium" OnClick="AddGallery">Add Photo</MudButton>
     </MudItem>
     <MudItem xs="10"></MudItem>
     <MudItem xs="12" Class="pt-2">
         <MudText Class="pb-1" Typo="Typo.h5">All Photos</MudText>
     </MudItem>
-    @foreach (var i in Enumerable.Range(1, 7))
+   
+     @foreach (var photo in Photos)
     {
         <MudItem xs="12" md="4" lg="3" Style="padding:5.5px;position:relative;" Class="photo">
             <MudItem Class="image-toolbar">
-            @*<MudItem Style="position: relative;top: 51px;left: 9px;z-index:1">*@
+                @*<MudItem Style="position: relative;top: 51px;left: 9px;z-index:1">*@
                 <MudIconButton DisableElevation Variant="Variant.Filled" Icon="@Icons.Material.Outlined.RemoveRedEye" Color="Color.Tertiary" />
-                <MudIconButton DisableElevation Variant="Variant.Filled" Icon="@Icons.Material.Outlined.Edit" Color="Color.Info" />
-                <MudIconButton DisableElevation Variant="Variant.Filled" Icon="@Icons.Material.Outlined.Delete" Color="Color.Secondary" />
-            </MudItem>
-            @if(i % 2 == 0){
-                <MudImage Fluid="true" Src="images/defaultImages/articleDefault.jpg" Alt="Swedish Farm House" Class="rounded-lg" />
-            }
-            else
-            {
-                <MudImage Fluid="true" Src="images/defaultImages/articleDefault2.jpg" Alt="Swedish Farm House" Class="rounded-lg" />
-            }
+                 <MudIconButton DisableElevation Variant="Variant.Filled" Icon="@Icons.Material.Outlined.Edit" OnClick="() => EditGallery(photo)" Color="Color.Info" />
+                 <MudIconButton DisableElevation Variant="Variant.Filled" Icon="@Icons.Material.Outlined.Delete" OnClick="() => Delete(photo)" Color="Color.Secondary" />
+             </MudItem>
+             <MudImage Fluid="true" Src="@($"images/admin/{photo.PhotoPath}")" Alt="Swedish Farm House" Class="rounded-lg" />
         </MudItem>
     }
+
 </MudGrid>
 
 <style>
@@ -49,5 +47,113 @@
 </style>
 
 @code {
+    private List<Photo> Photos { get; set; } = new();
+    private string rootFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images\\admin");
 
+    private DialogOptions _dialogOption = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = false, };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Photos = await _galleryService.Gallery();
+        }
+        catch(Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+
+    private async Task AddGallery()
+    {
+        try
+        {
+            var dialogData = new DialogParameters
+                {
+                    ["rootFolder"] = rootFolder
+                };
+            var dialog = await _dialogService.ShowAsync<AdminGalleryDialog>("New Photo", dialogData, _dialogOption);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var model = result.Data as Photo;
+                var photo = await _galleryService.AddGallery(model);
+                if(photo is not null)
+                {
+                    Photos.Add(photo);
+                    _snackBar.Add("Photo added sucessfully", Severity.Success);
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task EditGallery(Photo photo)
+    {
+        try
+        {
+
+            var dialogData = new DialogParameters
+                {
+                    ["Photo"] = photo,
+                    ["rootFolder"] = rootFolder,
+                    ["isEdit"] = true
+                };
+            var dialog = await _dialogService.ShowAsync<AdminGalleryDialog>("Edit Photo", dialogData, _dialogOption);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var model = result.Data as Photo;
+                var updatedPhoto = await _galleryService.UpdateGallery(model.PhotoId, model);
+                if (updatedPhoto is not null)
+                {
+                    int index = Photos.IndexOf(updatedPhoto);
+                    Photos[index] = updatedPhoto;
+                    _snackBar.Add("Photo added sucessfully", Severity.Success);
+                }
+            }
+            else
+            {
+                
+            }
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task Delete(Photo photo)
+    {
+
+        var parameters = new DialogParameters<ConfirmationDialog>();
+        parameters.Add(x => x.ContentText, !string.IsNullOrEmpty(photo.Caption) ? photo.Caption : "Photo");
+        var dialog = await _dialogService.ShowAsync<ConfirmationDialog>("Delete Photo", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await _galleryService.DeleteGallery(photo.PhotoId);
+
+            if (response.isSuccess)
+            {
+                if (File.Exists(Path.Combine(rootFolder, photo.PhotoPath)))
+                {
+                    File.Delete(Path.Combine(rootFolder, photo.PhotoPath));
+                }
+                Photos.Remove(photo);
+                _snackBar.Add(response.Message, Severity.Success);
+            }
+            else
+            {
+                _snackBar.Add(response.Message, Severity.Error);
+            }
+        }
+    }
 }

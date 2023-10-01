@@ -62,9 +62,9 @@ namespace Alumni.Web.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Photo_Path = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
                     Caption = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Event_ID = table.Column<int>(type: "int", nullable: false),
-                    Activity_ID = table.Column<int>(type: "int", nullable: false),
-                    Notice_ID = table.Column<int>(type: "int", nullable: false),
+                    Event_ID = table.Column<int>(type: "int", nullable: true),
+                    Activity_ID = table.Column<int>(type: "int", nullable: true),
+                    Notice_ID = table.Column<int>(type: "int", nullable: true),
                     Upload_Date = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>

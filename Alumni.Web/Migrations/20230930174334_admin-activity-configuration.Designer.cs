@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Alumni.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230930085141_admin-activity-configuration")]
+    [Migration("20230930174334_admin-activity-configuration")]
     partial class adminactivityconfiguration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -245,18 +245,18 @@ namespace Alumni.Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PhotoId"), 1L, 1);
 
-                    b.Property<int>("ActivityId")
+                    b.Property<int?>("ActivityId")
                         .HasColumnType("int")
                         .HasColumnName("Activity_ID");
 
                     b.Property<string>("Caption")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("EventId")
+                    b.Property<int?>("EventId")
                         .HasColumnType("int")
                         .HasColumnName("Event_ID");
 
-                    b.Property<int>("NoticeId")
+                    b.Property<int?>("NoticeId")
                         .HasColumnType("int")
                         .HasColumnName("Notice_ID");
 
@@ -690,20 +690,17 @@ namespace Alumni.Web.Migrations
                     b.HasOne("Alumni.Web.Models.Activity", "Activity")
                         .WithMany("Photos")
                         .HasForeignKey("ActivityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Alumni.Web.Models.Event", "Event")
                         .WithMany("Photos")
                         .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Alumni.Web.Models.Notice", "Notice")
                         .WithMany("Photos")
                         .HasForeignKey("NoticeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Activity");
 

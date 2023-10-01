@@ -23,6 +23,8 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IGalleryService, GalleryService>();
+
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddMudServices();
 

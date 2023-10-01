@@ -1,0 +1,23 @@
+﻿﻿﻿﻿<MudDialog>
+    <DialogContent>
+        <MudText Style="width:380px">Are you sure you want to delete @ContentText ?</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudItem Class="pb-3 pt-5 pr-3 d-flex justify-end gap-x-4">
+            <MudButton class="btn-medium" Variant="Variant.Filled" OnClick="Cancel">Cancel</MudButton>
+            <MudButton class="btn-medium" Color="Color.Error" Variant="Variant.Filled" OnClick="Submit">Delete</MudButton>
+        </MudItem>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    public MudDialogInstance Dialog { get; set; }
+    [Parameter]
+    public string ContentText { get; set; }
+
+    void Submit() => Dialog.Close(DialogResult.Ok(true));
+
+    void Cancel() => Dialog.Cancel();
+}
+
