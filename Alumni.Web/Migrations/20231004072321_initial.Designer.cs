@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Alumni.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230814125041_Initial")]
-    partial class Initial
+    [Migration("20231004072321_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,34 @@ namespace Alumni.Web.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("Alumni.Web.Models.Activity", b =>
+                {
+                    b.Property<int>("ActivityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Activity_ID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ActivityId"), 1L, 1);
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime>("PublishedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("Published_Date");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("");
+
+                    b.HasKey("ActivityId");
+
+                    b.ToTable("Activities");
+                });
 
             modelBuilder.Entity("Alumni.Web.Models.Business", b =>
                 {
@@ -54,6 +82,34 @@ namespace Alumni.Web.Migrations
                     b.ToTable("Business");
                 });
 
+            modelBuilder.Entity("Alumni.Web.Models.Event", b =>
+                {
+                    b.Property<int>("EventId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Event_ID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EventId"), 1L, 1);
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime>("PublishedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("Published_Date");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("");
+
+                    b.HasKey("EventId");
+
+                    b.ToTable("Events");
+                });
+
             modelBuilder.Entity("Alumni.Web.Models.Freelance", b =>
                 {
                     b.Property<int>("FreelanceId")
@@ -65,6 +121,11 @@ namespace Alumni.Web.Migrations
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("ProfileId")
                         .HasColumnType("int")
@@ -123,6 +184,34 @@ namespace Alumni.Web.Migrations
                     b.ToTable("GovtJob");
                 });
 
+            modelBuilder.Entity("Alumni.Web.Models.Notice", b =>
+                {
+                    b.Property<int>("NoticeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Notice_ID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NoticeId"), 1L, 1);
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime>("PublishedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("Published_Date");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("");
+
+                    b.HasKey("NoticeId");
+
+                    b.ToTable("Notices");
+                });
+
             modelBuilder.Entity("Alumni.Web.Models.PhoneNumber", b =>
                 {
                     b.Property<int>("PhoneId")
@@ -146,6 +235,50 @@ namespace Alumni.Web.Migrations
                     b.HasIndex("ProfileId");
 
                     b.ToTable("PhoneNumbers");
+                });
+
+            modelBuilder.Entity("Alumni.Web.Models.Photo", b =>
+                {
+                    b.Property<int>("PhotoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PhotoId"), 1L, 1);
+
+                    b.Property<int?>("ActivityId")
+                        .HasColumnType("int")
+                        .HasColumnName("Activity_ID");
+
+                    b.Property<string>("Caption")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("EventId")
+                        .HasColumnType("int")
+                        .HasColumnName("Event_ID");
+
+                    b.Property<int?>("NoticeId")
+                        .HasColumnType("int")
+                        .HasColumnName("Notice_ID");
+
+                    b.Property<string>("PhotoPath")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)")
+                        .HasColumnName("Photo_Path");
+
+                    b.Property<DateTime?>("UploadDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("Upload_Date");
+
+                    b.HasKey("PhotoId");
+
+                    b.HasIndex("ActivityId");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("NoticeId");
+
+                    b.ToTable("Photos");
                 });
 
             modelBuilder.Entity("Alumni.Web.Models.PostGrad", b =>
@@ -254,9 +387,7 @@ namespace Alumni.Web.Migrations
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("Gender")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Male");
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("GithubUrl")
                         .HasMaxLength(100)
@@ -286,17 +417,21 @@ namespace Alumni.Web.Migrations
                     b.Property<int?>("Session")
                         .HasColumnType("int");
 
-                    b.Property<bool?>("Unemployeed")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int")
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("User_ID");
+
+                    b.Property<bool?>("isApproved")
+                        .HasColumnType("bit");
 
                     b.Property<bool?>("isCurrentStudent")
                         .HasColumnType("bit");
 
                     b.Property<bool?>("isRenowned")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("isUnemployeed")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
@@ -550,6 +685,30 @@ namespace Alumni.Web.Migrations
                     b.Navigation("Profile");
                 });
 
+            modelBuilder.Entity("Alumni.Web.Models.Photo", b =>
+                {
+                    b.HasOne("Alumni.Web.Models.Activity", "Activity")
+                        .WithMany("Photos")
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Alumni.Web.Models.Event", "Event")
+                        .WithMany("Photos")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Alumni.Web.Models.Notice", "Notice")
+                        .WithMany("Photos")
+                        .HasForeignKey("NoticeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Activity");
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Notice");
+                });
+
             modelBuilder.Entity("Alumni.Web.Models.PostGrad", b =>
                 {
                     b.HasOne("Alumni.Web.Models.Profile", "Profile")
@@ -621,6 +780,21 @@ namespace Alumni.Web.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Alumni.Web.Models.Activity", b =>
+                {
+                    b.Navigation("Photos");
+                });
+
+            modelBuilder.Entity("Alumni.Web.Models.Event", b =>
+                {
+                    b.Navigation("Photos");
+                });
+
+            modelBuilder.Entity("Alumni.Web.Models.Notice", b =>
+                {
+                    b.Navigation("Photos");
                 });
 
             modelBuilder.Entity("Alumni.Web.Models.Profile", b =>

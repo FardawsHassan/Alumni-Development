@@ -7,26 +7,39 @@ namespace Alumni.Web.Services
 {
     public interface IGalleryService
     {
-        Task<List<Photo>> Gallery();
-        Task<Photo> AddGallery(Photo photo);
-        Task<Photo> UpdateGallery(int id, Photo photo);
-        Task<ResponseModel> DeleteGallery(int id);
+        Task<List<PhotoDto>> GetPhotos();
+        Task<PhotoDto> AddPhoto(PhotoDto photo);
+        Task<PhotoDto> UpdatePhoto(int id, PhotoDto photo);
+        Task<ResponseModel> DeletePhoto(int id);
     }
 
     public class GalleryService : IGalleryService
     {
         private readonly ApplicationDbContext _context;
-        public GalleryService(ApplicationDbContext context)
+        private readonly IFileService _fileService;
+
+        public GalleryService(ApplicationDbContext context, IFileService fileService)
         {
             _context = context;
+            _fileService = fileService;
         }
 
-        public async Task<List<Photo>> Gallery()
+        public async Task<List<PhotoDto>> GetPhotos()
         {
             try
             {
                 var photos = await _context.Photos.ToListAsync();
-                return photos is not null ? photos : new ();
+                return photos.Select(x => 
+                    new PhotoDto {
+                        PhotoId = x.PhotoId,
+                        ActivityId = x.ActivityId,
+                        EventId = x.EventId,
+                        NoticeId = x.NoticeId,
+                        Caption = x.Caption,
+                        PhotoPath = x.PhotoPath,
+                        UploadDate = x.UploadDate
+                    }
+                ).ToList();
             }
             catch
             {
@@ -34,35 +47,48 @@ namespace Alumni.Web.Services
             }
         }
 
-        public async Task<Photo> AddGallery(Photo photo)
+        public async Task<PhotoDto> AddPhoto(PhotoDto photoDto)
         {
             try
             {
-                await _context.Photos.AddAsync(photo);
+                Photo photo = new Photo()
+                {
+                    PhotoPath = photoDto.PhotoPath,
+                    Caption = photoDto.Caption,
+                    UploadDate = DateTime.Now,
+                };
+                var addedPhoto = await _context.Photos.AddAsync(photo);
                 await _context.SaveChangesAsync();
 
-                return photo;
+                photoDto.PhotoId = addedPhoto.Entity.PhotoId;
+                return photoDto;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
         }
 
-        public async Task<Photo> UpdateGallery(int id, Photo photo)
+        public async Task<PhotoDto> UpdatePhoto(int id, PhotoDto model)
         {
             try
             {
-                var hasPhoto = await _context.Photos.FindAsync(id);
-                if (hasPhoto is not null)
+                var photo = await _context.Photos.FindAsync(id);
+                if (photo is not null)
                 {
-                    hasPhoto.PhotoPath = photo.PhotoPath;
-                    hasPhoto.Caption = photo.Caption;
+                    photo.PhotoPath = model.PhotoPath;
+                    photo.Caption = model.Caption;
 
-                    _context.Photos.Update(hasPhoto);
+                    var updatedPhoto = _context.Photos.Update(photo);
                     await _context.SaveChangesAsync();
 
-                    return hasPhoto;
+                    return new PhotoDto { 
+                        UploadDate = updatedPhoto.Entity.UploadDate,
+                        PhotoPath = updatedPhoto.Entity.PhotoPath,
+                        Caption = updatedPhoto.Entity.Caption,
+                        PhotoId = updatedPhoto.Entity.PhotoId,
+                        FileStream = model.FileStream
+                    };
                 }
                 return null;
             }
@@ -72,7 +98,7 @@ namespace Alumni.Web.Services
             }
         }
 
-        public async Task<ResponseModel> DeleteGallery(int id)
+        public async Task<ResponseModel> DeletePhoto(int id)
         {
             try
             {
@@ -80,6 +106,7 @@ namespace Alumni.Web.Services
                 if (hasPhoto is not null)
                 {
                     _context.Photos.Remove(hasPhoto);
+                    _fileService.Delete(hasPhoto.PhotoPath);
                     await _context.SaveChangesAsync();
 
                     return new ResponseModel

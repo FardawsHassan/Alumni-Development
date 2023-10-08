@@ -25,6 +25,12 @@
     <Folder Include="Areas\Identity\Data\" />
     <Folder Include="wwwroot\images\admin\" />
     <Folder Include="wwwroot\images\defaultImages\" />
+    <Folder Include="wwwroot\Storage\Miscellaneous\" />
+    <Folder Include="wwwroot\Storage\Profile\" />
+    <Folder Include="wwwroot\Storage\Notice\" />
+    <Folder Include="wwwroot\Storage\Gallery\" />
+    <Folder Include="wwwroot\Storage\Event\" />
+    <Folder Include="wwwroot\Storage\Article\" />
   </ItemGroup>
 
 </Project>
