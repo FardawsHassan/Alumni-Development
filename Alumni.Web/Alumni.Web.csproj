@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <Folder Include="Areas\Identity\Data\" />
+    <Folder Include="Migrations\" />
     <Folder Include="wwwroot\images\admin\" />
     <Folder Include="wwwroot\images\defaultImages\" />
     <Folder Include="wwwroot\Storage\Miscellaneous\" />

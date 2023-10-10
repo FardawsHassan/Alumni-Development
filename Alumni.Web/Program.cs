@@ -23,6 +23,9 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IGalleryService, GalleryService>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
+builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<INoticeService, NoticeService>();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddMudServices();
 

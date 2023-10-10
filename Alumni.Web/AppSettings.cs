@@ -14,6 +14,6 @@
         public string GalleryImageStorageContainer { get; set; }
         public string NoticeFileStorageContainer { get; set; }
         public string EventImageStorageContainer { get; set; }
-        public string ArticleImageStorageContainer { get; set; }
+        public string ActivityImageStorageContainer { get; set; }
     }
 }

@@ -10,21 +10,6 @@ namespace Alumni.Web.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Activities",
-                columns: table => new
-                {
-                    Activity_ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Published_Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: ""),
-                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Activities", x => x.Activity_ID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
                 {
@@ -64,33 +49,21 @@ namespace Alumni.Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Events",
+                name: "Photos",
                 columns: table => new
                 {
-                    Event_ID = table.Column<int>(type: "int", nullable: false)
+                    PhotoId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Published_Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: ""),
-                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
+                    Photo_Path = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    Caption = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Event_ID = table.Column<int>(type: "int", nullable: true),
+                    Activity_ID = table.Column<int>(type: "int", nullable: true),
+                    Notice_ID = table.Column<int>(type: "int", nullable: true),
+                    Upload_Date = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Events", x => x.Event_ID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Notices",
-                columns: table => new
-                {
-                    Notice_ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Published_Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: ""),
-                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Notices", x => x.Notice_ID);
+                    table.PrimaryKey("PK_Photos", x => x.PhotoId);
                 });
 
             migrationBuilder.CreateTable(
@@ -231,38 +204,62 @@ namespace Alumni.Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Photos",
+                name: "Activities",
                 columns: table => new
                 {
-                    PhotoId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Photo_Path = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Caption = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Event_ID = table.Column<int>(type: "int", nullable: true),
-                    Activity_ID = table.Column<int>(type: "int", nullable: true),
-                    Notice_ID = table.Column<int>(type: "int", nullable: true),
-                    Upload_Date = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Activity_ID = table.Column<int>(type: "int", nullable: false),
+                    Published_Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: ""),
+                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Photos", x => x.PhotoId);
+                    table.PrimaryKey("PK_Activities", x => x.Activity_ID);
                     table.ForeignKey(
-                        name: "FK_Photos_Activities_Activity_ID",
+                        name: "FK_Activities_Photos_Activity_ID",
                         column: x => x.Activity_ID,
-                        principalTable: "Activities",
-                        principalColumn: "Activity_ID",
+                        principalTable: "Photos",
+                        principalColumn: "PhotoId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Events",
+                columns: table => new
+                {
+                    Event_ID = table.Column<int>(type: "int", nullable: false),
+                    Published_Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: ""),
+                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Events", x => x.Event_ID);
                     table.ForeignKey(
-                        name: "FK_Photos_Events_Event_ID",
+                        name: "FK_Events_Photos_Event_ID",
                         column: x => x.Event_ID,
-                        principalTable: "Events",
-                        principalColumn: "Event_ID",
+                        principalTable: "Photos",
+                        principalColumn: "PhotoId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notices",
+                columns: table => new
+                {
+                    Notice_ID = table.Column<int>(type: "int", nullable: false),
+                    Published_Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: ""),
+                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notices", x => x.Notice_ID);
                     table.ForeignKey(
-                        name: "FK_Photos_Notices_Notice_ID",
+                        name: "FK_Notices_Photos_Notice_ID",
                         column: x => x.Notice_ID,
-                        principalTable: "Notices",
-                        principalColumn: "Notice_ID",
+                        principalTable: "Photos",
+                        principalColumn: "PhotoId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -460,21 +457,6 @@ namespace Alumni.Web.Migrations
                 column: "Profile_ID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Photos_Activity_ID",
-                table: "Photos",
-                column: "Activity_ID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Photos_Event_ID",
-                table: "Photos",
-                column: "Event_ID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Photos_Notice_ID",
-                table: "Photos",
-                column: "Notice_ID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_PostGrad_Profile_ID",
                 table: "PostGrad",
                 column: "Profile_ID");
@@ -487,6 +469,9 @@ namespace Alumni.Web.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Activities");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -506,16 +491,19 @@ namespace Alumni.Web.Migrations
                 name: "Business");
 
             migrationBuilder.DropTable(
+                name: "Events");
+
+            migrationBuilder.DropTable(
                 name: "Freelance");
 
             migrationBuilder.DropTable(
                 name: "GovtJob");
 
             migrationBuilder.DropTable(
-                name: "PhoneNumbers");
+                name: "Notices");
 
             migrationBuilder.DropTable(
-                name: "Photos");
+                name: "PhoneNumbers");
 
             migrationBuilder.DropTable(
                 name: "PostGrad");
@@ -530,13 +518,7 @@ namespace Alumni.Web.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Activities");
-
-            migrationBuilder.DropTable(
-                name: "Events");
-
-            migrationBuilder.DropTable(
-                name: "Notices");
+                name: "Photos");
 
             migrationBuilder.DropTable(
                 name: "Profiles");

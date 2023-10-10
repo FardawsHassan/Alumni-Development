@@ -1,6 +1,8 @@
 ﻿@page "/admin/gallery"
+@using Alumni.Web.Components;
 @inject IGalleryService _galleryService
 @inject ISnackbar _snackBar
+@inject IDialogService _dialogService
 
 <MudGrid Class="pt-2 pb-5 pr-2">
     <MudItem xs="12">
@@ -64,7 +66,7 @@
     {
         try
         {
-            var dialog = await _dialogService.ShowAsync<AddPhotoDialog>("New Photo", _dialogOption);
+            var dialog = await _dialogService.ShowAsync<PhotoDialog>("New Photo", _dialogOption);
             var result = await dialog.Result;
 
             if (!result.Canceled)
@@ -92,7 +94,7 @@
                 {
                     ["Photo"] = photo,
                 };
-            var dialog = await _dialogService.ShowAsync<AddPhotoDialog>("Edit Photo", dialogData, _dialogOption);
+            var dialog = await _dialogService.ShowAsync<PhotoDialog>("Edit Photo", dialogData, _dialogOption);
             var result = await dialog.Result;
 
             if (!result.Canceled)

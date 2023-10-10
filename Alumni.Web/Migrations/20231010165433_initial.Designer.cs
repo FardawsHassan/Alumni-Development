@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Alumni.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231004072321_initial")]
+    [Migration("20231010165433_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,8 @@ namespace Alumni.Web.Migrations
             modelBuilder.Entity("Alumni.Web.Models.Activity", b =>
                 {
                     b.Property<int>("ActivityId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("Activity_ID");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ActivityId"), 1L, 1);
 
                     b.Property<string>("Description")
                         .HasMaxLength(300)
@@ -85,11 +82,8 @@ namespace Alumni.Web.Migrations
             modelBuilder.Entity("Alumni.Web.Models.Event", b =>
                 {
                     b.Property<int>("EventId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("Event_ID");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EventId"), 1L, 1);
 
                     b.Property<string>("Description")
                         .HasMaxLength(300)
@@ -187,11 +181,8 @@ namespace Alumni.Web.Migrations
             modelBuilder.Entity("Alumni.Web.Models.Notice", b =>
                 {
                     b.Property<int>("NoticeId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("Notice_ID");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NoticeId"), 1L, 1);
 
                     b.Property<string>("Description")
                         .HasMaxLength(300)
@@ -271,12 +262,6 @@ namespace Alumni.Web.Migrations
                         .HasColumnName("Upload_Date");
 
                     b.HasKey("PhotoId");
-
-                    b.HasIndex("ActivityId");
-
-                    b.HasIndex("EventId");
-
-                    b.HasIndex("NoticeId");
 
                     b.ToTable("Photos");
                 });
@@ -641,6 +626,17 @@ namespace Alumni.Web.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Alumni.Web.Models.Activity", b =>
+                {
+                    b.HasOne("Alumni.Web.Models.Photo", "Photo")
+                        .WithOne("Activity")
+                        .HasForeignKey("Alumni.Web.Models.Activity", "ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Photo");
+                });
+
             modelBuilder.Entity("Alumni.Web.Models.Business", b =>
                 {
                     b.HasOne("Alumni.Web.Models.Profile", "Profile")
@@ -650,6 +646,17 @@ namespace Alumni.Web.Migrations
                         .IsRequired();
 
                     b.Navigation("Profile");
+                });
+
+            modelBuilder.Entity("Alumni.Web.Models.Event", b =>
+                {
+                    b.HasOne("Alumni.Web.Models.Photo", "Photo")
+                        .WithOne("Event")
+                        .HasForeignKey("Alumni.Web.Models.Event", "EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Photo");
                 });
 
             modelBuilder.Entity("Alumni.Web.Models.Freelance", b =>
@@ -674,6 +681,17 @@ namespace Alumni.Web.Migrations
                     b.Navigation("Profile");
                 });
 
+            modelBuilder.Entity("Alumni.Web.Models.Notice", b =>
+                {
+                    b.HasOne("Alumni.Web.Models.Photo", "Photo")
+                        .WithOne("Notice")
+                        .HasForeignKey("Alumni.Web.Models.Notice", "NoticeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Photo");
+                });
+
             modelBuilder.Entity("Alumni.Web.Models.PhoneNumber", b =>
                 {
                     b.HasOne("Alumni.Web.Models.Profile", "Profile")
@@ -683,30 +701,6 @@ namespace Alumni.Web.Migrations
                         .IsRequired();
 
                     b.Navigation("Profile");
-                });
-
-            modelBuilder.Entity("Alumni.Web.Models.Photo", b =>
-                {
-                    b.HasOne("Alumni.Web.Models.Activity", "Activity")
-                        .WithMany("Photos")
-                        .HasForeignKey("ActivityId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Alumni.Web.Models.Event", "Event")
-                        .WithMany("Photos")
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Alumni.Web.Models.Notice", "Notice")
-                        .WithMany("Photos")
-                        .HasForeignKey("NoticeId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Activity");
-
-                    b.Navigation("Event");
-
-                    b.Navigation("Notice");
                 });
 
             modelBuilder.Entity("Alumni.Web.Models.PostGrad", b =>
@@ -782,19 +776,13 @@ namespace Alumni.Web.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Alumni.Web.Models.Activity", b =>
+            modelBuilder.Entity("Alumni.Web.Models.Photo", b =>
                 {
-                    b.Navigation("Photos");
-                });
+                    b.Navigation("Activity");
 
-            modelBuilder.Entity("Alumni.Web.Models.Event", b =>
-                {
-                    b.Navigation("Photos");
-                });
+                    b.Navigation("Event");
 
-            modelBuilder.Entity("Alumni.Web.Models.Notice", b =>
-                {
-                    b.Navigation("Photos");
+                    b.Navigation("Notice");
                 });
 
             modelBuilder.Entity("Alumni.Web.Models.Profile", b =>
