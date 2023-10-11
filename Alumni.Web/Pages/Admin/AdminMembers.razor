@@ -1,9 +1,12 @@
 ﻿@page "/admin/member"
+@inject IProfileService ProfileService
+@inject IDialogService DialogService
+@inject ISnackbar SnackBar
 
 <MudGrid Class="pt-4 pl-2 mb-16">
     <MudItem Class="pl-3" xs="12">
         <MudBadge Content="3" Overlap="true" Color="Color.Secondary">
-            <MudButton Variant="Variant.Filled" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Person">
+            <MudButton OnClick="ShowPendingMembersList" Variant="Variant.Filled" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Person">
                 <MudText>Member Requests</MudText>
             </MudButton>
         </MudBadge>
@@ -19,26 +22,27 @@
             <MudSelectItem Value="@("Roll")">Roll</MudSelectItem>
         </MudSelect>
     </MudItem>
-    @foreach(var item in Enumerable.Range(1,12))
+    @foreach (var member in ApprovedMembers)
     {
         <MudItem lg="2" md="3" sm="4" xs="6">
             <MudItem Class="d-flex justify-content-center">
                 <MudCard Style="width:200px;">
-                    <MudCardMedia Image="images/defaultProfile.jpg" Height="150" />
+                    @if(member.PhotoPath is not null)
+                    {
+                        <MudCardMedia Image="@member.PhotoPath" Height="150" />
+                    }
+                    else
+                    {
+                        <MudCardMedia Image="images/defaultProfile.jpg" Height="150" />
+                    }
                     <MudItem Class="ml-3 mr-3 pt-2">
-                        @if(item%2==0){
-                            <MudText Typo="Typo.body1">Fardaws Hassan Shuvro</MudText>
-                        }
-                        else
-                        {
-                            <MudText Typo="Typo.body1">Ashraful Islam Rakib</MudText>
-                        }
-                        <MudText Typo="Typo.overline">Session: 2017 - 2018</MudText>
+                        <MudText Typo="Typo.body1">@member.FullName</MudText>
+                        <MudText Typo="Typo.overline">Session: @member.Session - @(member.Session + 1)</MudText>
                     </MudItem>
                     <MudCardActions Class="d-flex justify-content-center gap-3 pb-3">
-                        <MudIconButton Variant="Variant.Outlined" Icon="@Icons.Material.Filled.RemoveRedEye" Size="Size.Small" Color="Color.Tertiary" />
-                        <MudIconButton Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Primary" />
-                        <MudIconButton Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Secondary" />
+                        <MudIconButton Href="@($"profile/view/{member.Id}")" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.RemoveRedEye" Size="Size.Small" Color="Color.Tertiary" />
+                        <MudIconButton Href="@($"/profile/edit/{member.Id}")" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Primary" />
+                        <MudIconButton OnClick="@(()=>DeleteMember(member))" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Secondary" />
                     </MudCardActions>
                 </MudCard>
             </MudItem>
@@ -50,5 +54,60 @@
 </MudGrid>
 
 @code {
+    public List<Profile> Members { get; set; } = new ();
+    public List<Profile> PendingMembers{ get; set; } = new ();
+    public List<Profile> ApprovedMembers{ get; set; } = new ();
+
     public string SelectedFilter { get; set; } = "All";
+    private DialogOptions _dialogOption = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true, };
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetMembers();
+    }
+
+    private async Task GetMembers()
+    {
+        Members = await ProfileService.GetProfiles();
+        PendingMembers= Members.Where(x => x.isApproved == false).ToList();
+        ApprovedMembers= Members.Where(x => x.isApproved == true).ToList();
+    }
+
+    public async Task ShowPendingMembersList()
+    {
+        var dialogData = new DialogParameters
+            {
+                ["PendingMembers"] = PendingMembers,
+            };
+        var dialog = await DialogService.ShowAsync<PendingMembersDialog>("Pending Members", dialogData, _dialogOption);
+        var result = await dialog.Result;
+        await GetMembers();
+        StateHasChanged();
+    }
+
+    private async Task DeleteMember(Profile member)
+    {
+
+        var parameters = new DialogParameters<ConfirmationDialog>();
+        parameters.Add(x => x.ContentText, !string.IsNullOrEmpty(member.FullName) ? member.FullName : "Member");
+        var dialog = await _dialogService.ShowAsync<ConfirmationDialog>("Delete Member", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await ProfileService.DeleteProfile(member.Id);
+
+            if (response.isSuccess)
+            {
+                ApprovedMembers.Remove(member);
+                Members.Remove(member);
+                SnackBar.Add("Member deleted successfully", Severity.Success);
+            }
+            else
+            {
+                SnackBar.Add(response.Message, Severity.Error);
+            }
+        }
+    }
 }

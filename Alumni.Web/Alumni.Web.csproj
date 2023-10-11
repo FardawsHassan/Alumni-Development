@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\images\admin\**" />
+    <Content Remove="wwwroot\images\admin\**" />
+    <EmbeddedResource Remove="wwwroot\images\admin\**" />
+    <None Remove="wwwroot\images\admin\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.15" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.20" />
@@ -24,7 +31,6 @@
   <ItemGroup>
     <Folder Include="Areas\Identity\Data\" />
     <Folder Include="Migrations\" />
-    <Folder Include="wwwroot\images\admin\" />
     <Folder Include="wwwroot\images\defaultImages\" />
     <Folder Include="wwwroot\Storage\Miscellaneous\" />
     <Folder Include="wwwroot\Storage\Profile\" />

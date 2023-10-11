@@ -28,6 +28,82 @@ namespace Alumni.Web.Services
             }
         }
 
+        public async Task<List<Profile>> GetProfiles()
+        {
+            try
+            {
+                return _context.Profiles.ToList();
+            }
+            catch (Exception)
+            {
+
+                return null;
+            }
+        }
+
+        public async Task<List<Profile>> GetApprovalPendingProfiles()
+        {
+            try
+            {
+                return _context.Profiles.Where(x => x.isApproved != true).ToList();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<ResponseModel> ApproveProfile(int id)
+        {
+            try
+            {
+                var profile = _context.Profiles.Where(x => x.Id == id).FirstOrDefault();
+                if (profile is not null)
+                {
+                    profile.isApproved = true;
+                    _context.Profiles.Update(profile);
+                    await _context.SaveChangesAsync();
+                }
+                return new()
+                {
+                    isSuccess = true,
+                };
+            }
+            catch (Exception ex)
+            {
+                return new()
+                {
+                    isSuccess = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<ResponseModel> DeleteProfile(int id)
+        {
+            try
+            {
+                var profile = _context.Profiles.Where(x => x.Id == id).FirstOrDefault();
+                if (profile is not null)
+                {
+                    _context.Profiles.Remove(profile);
+                    await _context.SaveChangesAsync();
+                }
+                return new()
+                {
+                    isSuccess = true,
+                };
+            }
+            catch (Exception ex)
+            {
+                return new()
+                {
+                    isSuccess = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
         public async Task<int?> GetProfileIdByEmail(string email)
         {
             try
@@ -46,13 +122,13 @@ namespace Alumni.Web.Services
             try
             {
                 var profile = await _context.Profiles.Where(x => x.Id == id)
-                                                     .Include(x => x.Freelance)
-                                                     .Include(x => x.PhoneNumbers)
-                                                     .Include(x => x.PostGrads)
-                                                     .Include(x => x.Businesses)
-                                                     .Include(x => x.GovtJobs)
-                                                     .Include(x => x.PrivateJobs)
-                                                     .FirstOrDefaultAsync();
+                                                        .Include(x => x.Freelance)
+                                                        .Include(x => x.PhoneNumbers)
+                                                        .Include(x => x.PostGrads)
+                                                        .Include(x => x.Businesses)
+                                                        .Include(x => x.GovtJobs)
+                                                        .Include(x => x.PrivateJobs)
+                                                        .FirstOrDefaultAsync();
 
                 return profile;
             }
@@ -93,5 +169,9 @@ namespace Alumni.Web.Services
         Task<int?> GetProfileIdByEmail(string email);
         Task<Profile> GetProfileById(int id);
         Task<ResponseModel> UpdateProfile(int id, Profile modifiedProfile);
+        Task<List<Profile>> GetProfiles();
+        Task<List<Profile>> GetApprovalPendingProfiles();
+        Task<ResponseModel> ApproveProfile(int id);
+        Task<ResponseModel> DeleteProfile(int id);
     }
-}
+} 

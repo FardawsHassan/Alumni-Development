@@ -23,7 +23,7 @@
         public string? Batches { get; set; }
         public bool? isCurrentStudent { get; set; }
         public bool? isRenowned { get; set; }
-        public bool? isApproved { get; set; }
+        public bool isApproved { get; set; }
 
         public List<PostGrad> PostGrads { get; set; }
         public List<Business> Businesses { get; set; }

@@ -1,0 +1,93 @@
+﻿@inject IProfileService ProfileService
+@inject ISnackbar SnackBar
+
+<MudDialog>
+    <DialogContent>
+        @foreach (var member in PendingMembers)
+        {
+            <MudItem xs="12" Class="d-flex mb-2">
+                <MudImage Width="40" Src="@(member.PhotoPath??"images/defaultProfile.jpg")"></MudImage>
+                <MudText Style="height:100%;margin:auto 15px;">@member.FullName</MudText>
+                <MudItem Class="flex-grow-1"></MudItem>
+                <MudButton Class="mr-2" OnClick="@(() => ViewProfile(member))" Color=Color.Info Variant="Variant.Outlined">View</MudButton>
+                <MudButton Disabled=@(member.isApproved) Color="Color.Tertiary" Class="mr-2" OnClick="@(() => ApproveProfile(member))" Variant="Variant.Outlined">Approve</MudButton>
+                <MudButton Color="Color.Error" OnClick="@(() => RejectProfile(member))" Variant="Variant.Outlined">Reject</MudButton>
+            </MudItem>
+        }
+        <MudButton DisableElevation Class="mt-3 mb-3 float-end" Variant=Variant.Filled Color=Color.Primary OnClick="Close">Close</MudButton>
+    </DialogContent>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter]
+    public MudDialogInstance Dialog { get; set; }
+    [Parameter]
+    public List<Profile> PendingMembers { get; set; } = new();
+
+    private DialogOptions _dialogOption = new DialogOptions() { MaxWidth = MaxWidth.Large, FullWidth = true, DisableBackdropClick = false, };
+
+    public async Task ApproveProfile(Profile profile)
+    {
+        var result = await ProfileService.ApproveProfile(profile.Id);
+        if (result.isSuccess)
+        {
+            SnackBar.Add("Member approved successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add(result.Message, Severity.Error);
+        }
+    }
+
+    //public async Task RejectProfile(Profile profile)
+    //{
+    //    var result = await ProfileService.DeleteProfile(profile.Id);
+    //    if (result.isSuccess)
+    //    {
+    //        PendingMembers.Remove(profile);
+    //        SnackBar.Add("Member Rejected successfully", Severity.Success);
+    //    }
+    //    else
+    //    {
+    //        SnackBar.Add(result.Message, Severity.Error);
+    //    }
+    //}
+
+    private async Task RejectProfile(Profile member)
+    {
+
+        var parameters = new DialogParameters<ConfirmationDialog>();
+        parameters.Add(x => x.ContentText, !string.IsNullOrEmpty(member.FullName) ? member.FullName : "Member");
+        var dialog = await _dialogService.ShowAsync<ConfirmationDialog>("Delete Member", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await ProfileService.DeleteProfile(member.Id);
+
+            if (response.isSuccess)
+            {
+                PendingMembers.Remove(member);
+                SnackBar.Add("Member rejected successfully", Severity.Success);
+            }
+            else
+            {
+                SnackBar.Add(response.Message, Severity.Error);
+            }
+        }
+    }
+    
+    private async Task ViewProfile(Profile member)
+    {
+        var dialogData = new DialogParameters
+            {
+                ["ProfileId"] = member.Id,
+            };
+        var dialog = await _dialogService.ShowAsync<ViewMemberDialog>("Pending Members", dialogData, _dialogOption);
+        var result = await dialog.Result;
+    }
+
+    void Close() => Dialog.Close(DialogResult.Ok(true));
+}
+

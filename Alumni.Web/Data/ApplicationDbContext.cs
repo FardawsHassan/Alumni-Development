@@ -38,6 +38,9 @@ namespace Alumni.Web.Data
                     .HasColumnType("nvarchar(20)")
                     .HasConversion(new EnumToStringConverter<Gender>()); ;
 ;
+                entity.Property(e => e.isApproved)
+                    .HasDefaultValue(false)
+                    .IsRequired();
 
                 entity.Property(p => p.BirthDate)
                     .HasColumnType("datetime2");
