@@ -1,6 +1,7 @@
 ﻿using Alumni.Web.Data;
 using Alumni.Web.Models;
 using Alumni.Web.Response;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Alumni.Web.Services
@@ -9,9 +10,11 @@ namespace Alumni.Web.Services
     public class ProfileService : IProfileService
     {
         private readonly ApplicationDbContext _context;
-        public ProfileService(ApplicationDbContext context)
+        private readonly UserManager<IdentityUser> _userManager;
+        public ProfileService(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<Profile> GetProfileByEmail(string email)
@@ -32,12 +35,61 @@ namespace Alumni.Web.Services
         {
             try
             {
-                return _context.Profiles.ToList();
+                return _context.Profiles.Where(x => x.Email != "admin@gmail.com").ToList();
             }
             catch (Exception)
             {
 
                 return null;
+            }
+        }
+        
+        public async Task<List<IdentityUser>> GetModerators()
+        {
+            try
+            {
+                var moderators =  await _userManager.GetUsersInRoleAsync("Moderator");
+                return moderators.ToList();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        
+        public async Task<ResponseModel> MakeModerator(Profile profile)
+        {
+            try
+            {
+                var user = _userManager.Users.Where(x => x.Email==profile.Email).FirstOrDefault();
+                await _userManager.RemoveFromRoleAsync(user, "Member");
+                await _userManager.AddToRoleAsync(user, "Moderator");
+                return new ResponseModel
+                {
+                    isSuccess = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseModel { isSuccess = false, Message=ex.Message };
+            }
+        }
+        
+        public async Task<ResponseModel> MakeMember(Profile profile)
+        {
+            try
+            {
+                var user = _userManager.Users.Where(x => x.Email==profile.Email).FirstOrDefault();
+                await _userManager.RemoveFromRoleAsync(user, "Moderator");
+                await _userManager.AddToRoleAsync(user, "Member");
+                return new ResponseModel
+                {
+                    isSuccess = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseModel { isSuccess = false, Message=ex.Message };
             }
         }
 
@@ -58,10 +110,12 @@ namespace Alumni.Web.Services
             try
             {
                 var profile = _context.Profiles.Where(x => x.Id == id).FirstOrDefault();
-                if (profile is not null)
+                var user = _userManager.Users.Where(x => x.Email == profile.Email).FirstOrDefault();
+                if (profile is not null && user is not null)
                 {
                     profile.isApproved = true;
                     _context.Profiles.Update(profile);
+                    await _userManager.AddToRoleAsync(user, "Member");
                     await _context.SaveChangesAsync();
                 }
                 return new()
@@ -84,9 +138,11 @@ namespace Alumni.Web.Services
             try
             {
                 var profile = _context.Profiles.Where(x => x.Id == id).FirstOrDefault();
-                if (profile is not null)
+                var user = _userManager.Users.Where(x => x.Email == profile.Email).FirstOrDefault();
+                if (profile is not null && user is not null)
                 {
                     _context.Profiles.Remove(profile);
+                    await _userManager.DeleteAsync(user);
                     await _context.SaveChangesAsync();
                 }
                 return new()
@@ -129,7 +185,6 @@ namespace Alumni.Web.Services
                                                         .Include(x => x.GovtJobs)
                                                         .Include(x => x.PrivateJobs)
                                                         .FirstOrDefaultAsync();
-
                 return profile;
             }
             catch
@@ -153,7 +208,6 @@ namespace Alumni.Web.Services
             }
             catch (Exception ex)
             {
-
                 return new ResponseModel
                 {
                     isSuccess = false,
@@ -173,5 +227,8 @@ namespace Alumni.Web.Services
         Task<List<Profile>> GetApprovalPendingProfiles();
         Task<ResponseModel> ApproveProfile(int id);
         Task<ResponseModel> DeleteProfile(int id);
+        Task<List<IdentityUser>> GetModerators();
+        Task<ResponseModel> MakeMember(Profile profile);
+        Task<ResponseModel> MakeModerator(Profile profile);
     }
 } 

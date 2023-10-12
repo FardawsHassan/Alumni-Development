@@ -13,17 +13,27 @@
 
 <MudNavMenu Rounded="true" Color="Color.Tertiary" Margin="Margin.Dense" Class="pa-2">
     <MudNavLink IconColor="Color.Tertiary" Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
-    <MudNavLink IconColor="Color.Tertiary" Href=@($"profile/edit/{profileId}") Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Edit">Edit Profile</MudNavLink>
-    <MudNavLink IconColor="Color.Tertiary" Href="@($"profile/view/{profileId}")" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.RemoveRedEye">View Profile</MudNavLink>
+    @if (isAuthenticated)
+    {
+        @if (!isAdmin)
+        {
+            @*<AuthorizeView Roles="Moderator, Member">*@
+            <MudNavLink IconColor="Color.Tertiary" Href=@($"profile/edit/{profileId}") Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Edit">Edit Profile</MudNavLink>
+            <MudNavLink IconColor="Color.Tertiary" Href="@($"profile/view/{profileId}")" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.RemoveRedEye">View Profile</MudNavLink>
+            @*</AuthorizeView>*@
+        }
+    }
     <MudNavLink IconColor="Color.Tertiary" Href="/search" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Search">Find Alumni</MudNavLink>
-    <MudNavGroup IconColor="Color.Error" Title="Admin Panel" Icon="@Icons.Material.Filled.AdminPanelSettings" Expanded="true">
-        <MudNavLink Href="/admin/activity" Icon="@Icons.Material.Filled.LocalActivity" IconColor="Color.Info">Acitvity</MudNavLink>
-        <MudNavLink Href="/admin/notice" Icon="@Icons.Material.Filled.Newspaper" IconColor="Color.Info">Notice</MudNavLink>
-        <MudNavLink Href="/admin/event" Icon="@Icons.Material.Filled.Event" IconColor="Color.Info">Events</MudNavLink>
-        <MudNavLink Href="/admin/gallery" Icon="@Icons.Material.Filled.BrowseGallery" IconColor="Color.Info">Gallery</MudNavLink>
-        <MudNavLink Href="/admin/member" Icon="@Icons.Material.Filled.Person2" IconColor="Color.Info">Members</MudNavLink>
-        <MudNavLink Href="/admin/setting" Icon="@Icons.Material.Filled.Settings" IconColor="Color.Info">Settings</MudNavLink>
-    </MudNavGroup>
+    <AuthorizeView Roles="Admin, Moderator">
+        <MudNavGroup IconColor="Color.Error" Title="Admin Panel" Icon="@Icons.Material.Filled.AdminPanelSettings" Expanded="true">
+            <MudNavLink Href="/admin/activity" Icon="@Icons.Material.Filled.LocalActivity" IconColor="Color.Info">Acitvity</MudNavLink>
+            <MudNavLink Href="/admin/notice" Icon="@Icons.Material.Filled.Newspaper" IconColor="Color.Info">Notice</MudNavLink>
+            <MudNavLink Href="/admin/event" Icon="@Icons.Material.Filled.Event" IconColor="Color.Info">Events</MudNavLink>
+            <MudNavLink Href="/admin/gallery" Icon="@Icons.Material.Filled.BrowseGallery" IconColor="Color.Info">Gallery</MudNavLink>
+            <MudNavLink Href="/admin/member" Icon="@Icons.Material.Filled.Person2" IconColor="Color.Info">Members</MudNavLink>
+            <MudNavLink Href="/admin/setting" Icon="@Icons.Material.Filled.Settings" IconColor="Color.Info">Settings</MudNavLink>
+        </MudNavGroup>
+    </AuthorizeView>
 </MudNavMenu>
 
 <style>
@@ -42,6 +52,8 @@
     private bool collapseNavMenu = true;
     public string userEmail { get; set; } = string.Empty;
     public int? profileId { get; set; } = null;
+    private bool isAdmin = false;
+    private bool isAuthenticated = false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -51,13 +63,18 @@
         var user = (await _authenticationState).User;
         if (user.Identity is not null && user.Identity.IsAuthenticated)
         {
+            isAuthenticated = true;
             userEmail = user.Identity.Name ?? "";
             profileId = await ProfileService.GetProfileIdByEmail(userEmail);
+            if (userEmail == "admin@gmail.com")
+            {
+                isAdmin = true;
+            }
         }
-        else
-        {
-            NavigationManager.NavigateTo("Identity/Account/Login", forceLoad: true);
-        }
+        //else
+        //{
+        //    NavigationManager.NavigateTo("Identity/Account/Login", forceLoad: true);
+        //}
     }
 
     private void ToggleNavMenu()

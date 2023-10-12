@@ -40,23 +40,8 @@
         }
     }
 
-    //public async Task RejectProfile(Profile profile)
-    //{
-    //    var result = await ProfileService.DeleteProfile(profile.Id);
-    //    if (result.isSuccess)
-    //    {
-    //        PendingMembers.Remove(profile);
-    //        SnackBar.Add("Member Rejected successfully", Severity.Success);
-    //    }
-    //    else
-    //    {
-    //        SnackBar.Add(result.Message, Severity.Error);
-    //    }
-    //}
-
     private async Task RejectProfile(Profile member)
     {
-
         var parameters = new DialogParameters<ConfirmationDialog>();
         parameters.Add(x => x.ContentText, !string.IsNullOrEmpty(member.FullName) ? member.FullName : "Member");
         var dialog = await _dialogService.ShowAsync<ConfirmationDialog>("Delete Member", parameters);

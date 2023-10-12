@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System.Diagnostics;
 using Activity = Alumni.Web.Models.Activity;
 
 namespace Alumni.Web.Data

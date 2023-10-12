@@ -1,6 +1,7 @@
 using Alumni.Web;
 using Alumni.Web.Areas.Identity;
 using Alumni.Web.Data;
+using Alumni.Web.Infrastructure;
 using Alumni.Web.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,8 +15,19 @@ builder.Configuration.GetSection(AppSettings.SectionName).Bind(AppSettings.Setti
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(AppSettings.Settings.ConnectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => 
+{ 
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Password.RequiredLength = 4;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireDigit = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireLowercase = false;
+}).AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.ApplyDatabaseMigrations(); 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
