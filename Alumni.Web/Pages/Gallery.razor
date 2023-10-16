@@ -1,0 +1,141 @@
+﻿@page "/gallery"
+@using Alumni.Web.Components;
+@inject IGalleryService _galleryService
+@inject ISnackbar _snackBar
+@inject IDialogService _dialogService
+
+<MudGrid Class="pt-2 pb-5 pr-2">
+    <MudItem xs="12">
+        <MudButton Style="border: 2px solid darkslategray;" DisableElevation Variant="Variant.Outlined" IconSize="Size.Large" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Error" Size="Size.Medium" OnClick="AddPhoto">Add Photo</MudButton>
+    </MudItem>
+    <MudItem xs="10"></MudItem>
+    <MudItem xs="12" Class="pt-2">
+        <MudText Class="pb-1" Typo="Typo.h5">All Photos</MudText>
+    </MudItem>
+     @foreach (var photo in Photos)
+    {
+        <MudItem xs="12" md="4" lg="3" Style="padding:5.5px;position:relative;" Class="photo">
+            <MudItem Class="image-toolbar">
+                <MudIconButton DisableElevation Variant="Variant.Filled" Icon="@Icons.Material.Outlined.RemoveRedEye" Color="Color.Tertiary" />
+                <MudIconButton DisableElevation Variant="Variant.Filled" Icon="@Icons.Material.Outlined.Edit" OnClick="() => EditGallery(photo)" Color="Color.Info" />
+                <MudIconButton DisableElevation Variant="Variant.Filled" Icon="@Icons.Material.Outlined.Delete" OnClick="() => Delete(photo)" Color="Color.Secondary" />
+             </MudItem>
+             <MudImage Fluid="true" Src="@photo.PhotoPath" Alt="Swedish Farm House" Class="rounded-lg" />
+        </MudItem>
+    }
+</MudGrid>
+
+<style>
+    .photo:hover img{
+        opacity: .7;
+        filter: grayscale(100%);
+        transition: .2s ease-in-out;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    .image-toolbar{
+        width: 90%;
+        position: absolute;
+        z-index: 10;
+        padding-left: 9px;
+        padding-top: 9px;
+        display: none;
+    }
+    .photo:hover .image-toolbar{
+        display: block;
+    }
+</style>
+
+@code {
+    private List<PhotoDto> Photos { get; set; } = new();
+    private DialogOptions _dialogOption = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = false, };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Photos = await _galleryService.GetPhotos();
+        }
+        catch(Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+
+    private async Task AddPhoto()
+    {
+        try
+        {
+            var dialog = await _dialogService.ShowAsync<PhotoDialog>("New Photo", _dialogOption);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var model = result.Data as PhotoDto;
+                var photo = await _galleryService.AddPhoto(model);
+                if(photo is not null)
+                {
+                    Photos.Add(photo);
+                    _snackBar.Add("Photo added sucessfully", Severity.Success);
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task EditGallery(PhotoDto photo)
+    {
+        try
+        {
+            var dialogData = new DialogParameters
+                {
+                    ["Photo"] = photo,
+                };
+            var dialog = await _dialogService.ShowAsync<PhotoDialog>("Edit Photo", dialogData, _dialogOption);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var model = result.Data as PhotoDto;
+                var updatedPhoto = await _galleryService.UpdatePhoto(model.PhotoId, model);
+                if (updatedPhoto is not null)
+                {
+                    int index = Photos.IndexOf(photo);
+                    Photos[index] = updatedPhoto;
+                    _snackBar.Add("Photo added sucessfully", Severity.Success);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task Delete(PhotoDto photo)
+    {
+
+        var parameters = new DialogParameters<ConfirmationDialog>();
+        parameters.Add(x => x.ContentText, !string.IsNullOrEmpty(photo.Caption) ? photo.Caption : "Photo");
+        var dialog = await _dialogService.ShowAsync<ConfirmationDialog>("Delete Photo", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await _galleryService.DeletePhoto(photo.PhotoId);
+
+            if (response.isSuccess)
+            {
+                Photos.Remove(photo);
+                _snackBar.Add(response.Message, Severity.Success);
+            }
+            else
+            {
+                _snackBar.Add(response.Message, Severity.Error);
+            }
+        }
+    }
+}

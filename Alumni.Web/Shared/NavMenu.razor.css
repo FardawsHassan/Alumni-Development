@@ -3,15 +3,15 @@
 }
 
 .top-row {
-    height: 3.5rem;
-    background-color: rgba(0,0,0,0.4);
+    height: 79px;
+    background-color: white;
 }
 
 .navbar-brand {
     font-size: 1.1rem;
 }
 
-.oi {
+.bi {
     width: 2rem;
     font-size: 1.1rem;
     vertical-align: text-top;
@@ -32,15 +32,21 @@
     }
 
     .nav-item ::deep a {
-        color: #d7d7d7;
-        border-radius: 4px;
-        height: 3rem;
-        display: flex;
-        align-items: center;
-        line-height: 3rem;
+        color: #5E6E82;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 23.213px; /* 145.082% */
+        /*        color: #d7d7d7;
+    border-radius: 4px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;*/
     }
 
-.nav-item ::deep a.active {
+        /*.nav-item ::deep a.active {
     background-color: rgba(255,255,255,0.25);
     color: white;
 }
@@ -48,7 +54,17 @@
 .nav-item ::deep a:hover {
     background-color: rgba(255,255,255,0.1);
     color: white;
-}
+}*/
+
+        .nav-item ::deep a.active {
+            color: white;
+            border-radius: 6px;
+            background: #2168F2;
+        }
+
+/*.first-link {
+    fill: #2168F2;
+}*/
 
 @media (min-width: 641px) {
     .navbar-toggler {
@@ -59,4 +75,16 @@
         /* Never collapse the sidebar for wide screens */
         display: block;
     }
+
+    .nav-scrollable {
+        /* Allow sidebar to scroll for tall menus */
+        height: calc(100vh - 79px);
+        overflow-y: auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+        .nav-scrollable::-webkit-scrollbar {
+            display: none;
+        }
 }

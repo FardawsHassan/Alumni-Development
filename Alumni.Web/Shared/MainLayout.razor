@@ -6,12 +6,28 @@
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu />
+        <CascadingValue Value="profile">
+            <NavMenu />
+        </CascadingValue>
     </div>
 
     <main>
-        <div class="top-row px-4 auth">
-            <LoginDisplay />
+        <div class="top-row">
+            <MudImage Style="margin-right:15px" Src="images/ThemeLightMode.svg"></MudImage>
+            <AuthorizeView>
+                <Authorized>
+                    <MudImage Style="margin-right:8px" Src="images/NotificationIcon.svg"></MudImage>
+                    <form method="post" action="Identity/Account/LogOut">
+                        <MudIconButton ButtonType="ButtonType.Submit" Style="width:35px;height:35px;margin-left:0;" Icon="@Icons.Material.Filled.PowerSettingsNew"></MudIconButton>
+                    </form>
+                    <MudAvatar Style="margin:auto 4.5vw auto 1vw;" Image="@(profile.PhotoPath??"images/defaultProfile.jpg")"></MudAvatar>
+                </Authorized>
+                <NotAuthorized>
+                    <MudLink Href="Identity/Account/Register">Register</MudLink>
+                    <MudLink Style="margin:auto 4.5vw auto 1vw;" Href="Identity/Account/Login">Log in</MudLink>
+                </NotAuthorized>
+            </AuthorizeView>
+            @*<LoginDisplay />*@
         </div>
 
         <article class="content px-4">
@@ -19,3 +35,23 @@
         </article>
     </main>
 </div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> _authenticationState { get; set; }
+    [Inject]
+    private IProfileService ProfileService { get; set; }
+
+    public string userEmail { get; set; } = string.Empty;
+    public Profile profile = new();
+
+    protected async override Task OnInitializedAsync()
+    {
+        var user = (await _authenticationState).User;
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            userEmail = user.Identity.Name ?? "";
+            profile = await ProfileService.GetProfileByEmail(userEmail);
+        }
+    }
+}

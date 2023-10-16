@@ -2,56 +2,172 @@
 @inject NavigationManager NavigationManager
 @using Alumni.Web.Services
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">CSE Alumni</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+
+<div class="top-row navbar">
+    <div class="container-fluid" style="padding:0">
+        <MudItem Class="d-flex" Style="padding-left:5vw">
+            <MudImage Style="padding-bottom:1px;" Height="58" Width="50" ObjectFit=ObjectFit.Contain Src="images/pust_logo.png"></MudImage>
+            <MudText Style="margin: auto 0 auto 11px" Class="LogoText">CSE</MudText>
+        </MudItem>
+        <MudImage Class="navbar-toggler" @onclick="ToggleNavMenu" Src="images/MenuBar.svg"></MudImage>
+
+        @*        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+        </button> *@
     </div>
 </div>
 
-<MudNavMenu Rounded="true" Color="Color.Tertiary" Margin="Margin.Dense" Class="pa-2">
-    <MudNavLink IconColor="Color.Tertiary" Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
-    @if (isAuthenticated)
-    {
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column" style="margin-left:4vw;margin-bottom:75px;">
+        <div class="nav-item pr-3 pt-0 mt-7">
+            <NavLink class="nav-link d-flex" href="" Match="NavLinkMatch.All">
+                <MudIcon Icon="@Icons.Material.Filled.House"></MudIcon>
+                <MudText Class="pl-2">Home</MudText>
+            </NavLink>
+        </div>
+        <div class="nav-item pr-3">
+            <NavLink class="nav-link d-flex" href="/search" Match="NavLinkMatch.All">
+                <MudText Class="pl-8">Search Alumni</MudText>
+            </NavLink>
+        </div>
         @if (!isAdmin)
         {
-            @*<AuthorizeView Roles="Moderator, Member">*@
-            <MudNavLink IconColor="Color.Tertiary" Href=@($"profile/edit/{profileId}") Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Edit">Edit Profile</MudNavLink>
-            <MudNavLink IconColor="Color.Tertiary" Href="@($"profile/view/{profileId}")" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.RemoveRedEye">View Profile</MudNavLink>
-            @*</AuthorizeView>*@
+            <div class="nav-item pr-3">
+                <NavLink class="nav-link d-flex" href="/event" Match="NavLinkMatch.All">
+                    <MudText Class="pl-8">Events</MudText>
+                </NavLink>
+            </div>
+            <div class="nav-item pr-3">
+                <NavLink class="nav-link d-flex" href="/notice" Match="NavLinkMatch.All">
+                    <MudText Class="pl-8">Notice</MudText>
+                </NavLink>
+            </div>
+            <div class="nav-item pr-3">
+                <NavLink class="nav-link d-flex" href="/activity" Match="NavLinkMatch.All">
+                    <MudText Class="pl-8">Activity</MudText>
+                </NavLink>
+            </div>
+            <div class="nav-item pr-3">
+                <NavLink class="nav-link d-flex" href="/gallery" Match="NavLinkMatch.All">
+                    <MudText Class="pl-8">Gallery</MudText>
+                </NavLink>
+            </div>
+            <div class="nav-item pr-3">
+                <NavLink class="nav-link d-flex" href="/member" Match="NavLinkMatch.All">
+                    <MudText Class="pl-8">Members</MudText>
+                </NavLink>
+            </div>
         }
-    }
-    <MudNavLink IconColor="Color.Tertiary" Href="/search" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Search">Find Alumni</MudNavLink>
-    <AuthorizeView Roles="Admin, Moderator">
-        <MudNavGroup IconColor="Color.Error" Title="Admin Panel" Icon="@Icons.Material.Filled.AdminPanelSettings" Expanded="true">
-            <MudNavLink Href="/admin/activity" Icon="@Icons.Material.Filled.LocalActivity" IconColor="Color.Info">Acitvity</MudNavLink>
-            <MudNavLink Href="/admin/notice" Icon="@Icons.Material.Filled.Newspaper" IconColor="Color.Info">Notice</MudNavLink>
-            <MudNavLink Href="/admin/event" Icon="@Icons.Material.Filled.Event" IconColor="Color.Info">Events</MudNavLink>
-            <MudNavLink Href="/admin/gallery" Icon="@Icons.Material.Filled.BrowseGallery" IconColor="Color.Info">Gallery</MudNavLink>
-            <MudNavLink Href="/admin/member" Icon="@Icons.Material.Filled.Person2" IconColor="Color.Info">Members</MudNavLink>
-            <MudNavLink Href="/admin/setting" Icon="@Icons.Material.Filled.Settings" IconColor="Color.Info">Settings</MudNavLink>
-        </MudNavGroup>
-    </AuthorizeView>
-</MudNavMenu>
+
+
+        @if (isAuthenticated)
+        {
+            @if (!isAdmin)
+            {
+                <MudItem Style="margin-top:18px;margin-bottom:17px;" Class="d-flex pr-3">
+                    <MudText Class="pl-3 link-header">Profile</MudText>
+                    <MudDivider Style="width:auto;height:2px;background:#9DA9BB;margin:auto 0 auto 8px"></MudDivider>
+                </MudItem>
+                <div class="nav-item pr-3">
+                    <NavLink class="nav-link d-flex" href="@($"profile/edit/{profile.Id}")" Match="NavLinkMatch.All">
+                        <MudIcon Icon="@Icons.Material.Filled.EditNote"></MudIcon>
+                        <MudText Class="pl-2">Edit</MudText>
+                    </NavLink>
+                </div>
+                <div class="nav-item pr-3">
+                    <NavLink class="nav-link d-flex" href="@($"profile/view/{profile.Id}")" Match="NavLinkMatch.All">
+                        <MudIcon Icon="@Icons.Material.Filled.Preview"></MudIcon>
+                        <MudText Class="pl-2">View</MudText>
+                    </NavLink>
+                </div>
+            }
+        }
+
+        <AuthorizeView Roles="Admin, Moderator">
+            <MudItem Style="margin-top:18px;margin-bottom:17px;" Class="d-flex pr-3">
+                <MudText Class="pl-3 link-header">Admin Panel</MudText>
+                <MudDivider Style="width:auto;height:2px;background:#9DA9BB;margin:auto 0 auto 8px"></MudDivider>
+            </MudItem>
+            <div class="nav-item pr-3">
+                <NavLink class="nav-link d-flex" href="admin/event" Match="NavLinkMatch.All">
+                    <MudIcon Icon="@Icons.Material.Filled.Event"></MudIcon>
+                    <MudText Class="pl-2">Events</MudText>
+                </NavLink>
+            </div>
+            <div class="nav-item pr-3">
+                <NavLink class="nav-link d-flex" href="admin/notice" Match="NavLinkMatch.All">
+                    <MudIcon Icon="@Icons.Material.Filled.Campaign"></MudIcon>
+                    <MudText Class="pl-2">Notice</MudText>
+                </NavLink>
+            </div>
+            <div class="nav-item pr-3">
+                <NavLink class="nav-link d-flex" href="admin/activity" Match="NavLinkMatch.All">
+                    <MudIcon Icon="@Icons.Material.Filled.Diversity3"></MudIcon>
+                    <MudText Class="pl-2">Activity</MudText>
+                </NavLink>
+            </div>
+            <div class="nav-item pr-3">
+                <NavLink class="nav-link d-flex" href="admin/gallery" Match="NavLinkMatch.All">
+                    <MudIcon Icon="@Icons.Material.Filled.PhotoLibrary"></MudIcon>
+                    <MudText Class="pl-2">Gallery</MudText>
+                </NavLink>
+            </div>
+            <div class="nav-item pr-3">
+                <NavLink class="nav-link d-flex" href="admin/member" Match="NavLinkMatch.All">
+                    <MudIcon Icon="@Icons.Material.Filled.Engineering"></MudIcon>
+                    <MudText Class="pl-2">Members</MudText>
+                </NavLink>
+            </div>
+            <div class="nav-item pr-3">
+                <NavLink class="nav-link d-flex" href="admin/setting" Match="NavLinkMatch.All">
+                    <MudIcon Icon="@Icons.Material.Filled.Tune"></MudIcon>
+                    <MudText Class="pl-2">Page Settings</MudText>
+                </NavLink>
+            </div>
+        </AuthorizeView>
+    </nav>
+</div>
+
+
 
 <style>
-    .mud-nav-link{
-        text-decoration: none;
-        color: white;
+    .LogoText {
+        color: #000;
+        font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        font-size: 31px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 24px;
+    }
+
+    .nav-item {
+        padding-bottom: 0 !important;
+    }
+
+    .nav-link {
+        padding: .65rem 1rem;
+    }
+
+    .link-header {
+        color: #9DA9BB;
+        font-family: Inter;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 24px; /* 165.808% */
     }
 </style>
 
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> _authenticationState { get; set; }
+    [CascadingParameter]
+    private Profile profile { get; set; } = new();
     [Inject]
     private IProfileService ProfileService { get; set; }
 
     private bool collapseNavMenu = true;
     public string userEmail { get; set; } = string.Empty;
-    public int? profileId { get; set; } = null;
     private bool isAdmin = false;
     private bool isAuthenticated = false;
 
@@ -65,7 +181,6 @@
         {
             isAuthenticated = true;
             userEmail = user.Identity.Name ?? "";
-            profileId = await ProfileService.GetProfileIdByEmail(userEmail);
             if (userEmail == "admin@gmail.com")
             {
                 isAdmin = true;

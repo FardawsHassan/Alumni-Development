@@ -1,0 +1,135 @@
+﻿@page "/notice"
+@using Alumni.Web.Components;
+@inject INoticeService _noticeService
+@inject ISnackbar _snackBar
+@inject IDialogService _dialogService
+
+<MudGrid Class="pt-2 pb-5 pr-3">
+    <MudItem xs="12">
+        <MudButton OnClick="AddNotice" Style="border: 2px solid darkslategray;" DisableElevation Variant="Variant.Outlined" IconSize="Size.Large" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Error" Size="Size.Medium">New Notice</MudButton>
+    </MudItem>
+    <MudItem xs="10"></MudItem>
+    <MudItem xs="12" Class="pt-2">
+        <MudText Class="pb-1" Typo="Typo.h5">All Notices</MudText>
+    </MudItem>
+    @foreach (var notice in _notices)
+    {
+        <MudItem xs="12" sm="6" md="4" lg="3">
+            <MudCard Style="border-radius:3px 3px 8px 8px;">
+                <MudToolBar Style="border-radius:2px 2px 0px 0px;background-color:#1e1e2d;" Class="px-2">
+                    <MudSpacer />
+                    <MudIconButton Icon="@Icons.Material.Outlined.RemoveRedEye" Color="Color.Tertiary" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(()=>EditNotice(notice))" Color="Color.Info" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=>Delete(notice))" Color="Color.Secondary" />
+                </MudToolBar>
+
+               <MudCardContent>
+                    <MudItem Style="width:100%;">
+                        <MudImage ObjectFit="ObjectFit.Contain" Style="width:100%;" Height="150" Src="@notice.Photo.PhotoPath"></MudImage>
+                    </MudItem>
+                    <MudItem>
+                        <MudText Typo="Typo.h5">@notice.Title</MudText>
+                    </MudItem>
+                    <MudItem>
+                        <MudText Typo="Typo.body2">@notice.Description</MudText>
+                    </MudItem>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
+    private List<Notice> _notices { get; set; } = new();
+    private DialogOptions _dialogOption = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = false, };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _notices = await _noticeService.GetNotices();
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+
+    private async Task AddNotice()
+    {
+        try
+        {
+            var dialog = await _dialogService.ShowAsync<NoticePostDialog>("New Notice", _dialogOption);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var model = result.Data as Notice;
+                var newNotice = await _noticeService.AddPost(model);
+                if (newNotice is not null)
+                {
+                    _notices.Add(newNotice);
+                    _snackBar.Add("Notice added sucessfully", Severity.Success);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task EditNotice(Notice notice)
+    {
+        try
+        {
+            var dialogData = new DialogParameters
+                {
+                    ["Notice"] = notice,
+                };
+            var dialog = await _dialogService.ShowAsync<NoticePostDialog>("Edit Post", dialogData, _dialogOption);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var model = result.Data as Notice;
+                var updatedNotice = await _noticeService.UpdatePost(model.NoticeId, model);
+                if (updatedNotice is not null)
+                {
+                    int index = _notices.IndexOf(notice);
+                    _notices[index] = updatedNotice;
+                    _snackBar.Add("Notice added sucessfully", Severity.Success);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task Delete(Notice notice)
+    {
+
+        var parameters = new DialogParameters<ConfirmationDialog>();
+        parameters.Add(x => x.ContentText, !string.IsNullOrEmpty(notice.Title) ? notice.Title : "Notice");
+        var dialog = await _dialogService.ShowAsync<ConfirmationDialog>("Delete Post", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await _noticeService.DeletePost(notice.NoticeId);
+
+            if (response.isSuccess)
+            {
+                _notices.Remove(notice);
+                _snackBar.Add(response.Message, Severity.Success);
+            }
+            else
+            {
+                _snackBar.Add(response.Message, Severity.Error);
+            }
+        }
+    }
+}
