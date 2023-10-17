@@ -3,46 +3,21 @@
 @inject IActivityService _activityService
 @inject ISnackbar _snackBar
 @inject IDialogService _dialogService
+<MudItem Style=@(isCollapsedMenu?"padding:20px 7vw":"padding-top:20px;padding-left:20px;")>
 
 <MudGrid Class="pt-2 pb-5 pr-3">
-    <AuthorizeView Roles="Admin, Moderator">
-	    <MudItem xs="12">
-            <MudButton OnClick="AddActivity" Style="border: 2px solid darkslategray;" DisableElevation Variant="Variant.Outlined" IconSize="Size.Large" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Error" Size="Size.Medium">New Activity</MudButton>
-	    </MudItem>
-    </AuthorizeView>
     <MudItem xs="12" Class="pt-4">
         <MudText Class="pb-1" Typo="Typo.h5">All Activities</MudText>
     </MudItem>
     @foreach(var activity in Activities)
     {
-        <MudItem xs="12" sm="6" md="4" lg="3">
-            <MudCard Style="border-radius:3px 3px 8px 8px;">
-                <MudToolBar Style="border-radius:2px 2px 0px 0px;background-color:#1e1e2d;" Class="px-2">
-                    <MudSpacer />
-                    <MudIconButton Icon="@Icons.Material.Outlined.RemoveRedEye" Color="Color.Tertiary" />
-                    @*<AuthorizeView Roles="Admin, Moderator">*@
-                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(()=>EditActivity(activity))" Color="Color.Info" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=>Delete(activity))" Color="Color.Secondary" />
-                    @*</AuthorizeView>*@
-                </MudToolBar>
-                
-                <MudCardContent>
-                    <MudItem Style="width:100%;">
-                        <MudImage ObjectFit="ObjectFit.Contain" Style="width:100%;" Height="150" Src="@activity.Photo.PhotoPath"></MudImage>
-                    </MudItem>
-                    <MudItem>
-                        <MudText Typo="Typo.h5">@activity.Title</MudText>
-                    </MudItem>
-                    <MudItem>
-                        <MudText Typo="Typo.body2">@activity.Description</MudText>
-                    </MudItem>
-                </MudCardContent>
-            </MudCard>
-	    </MudItem>
+        <PostCard Date="@activity.PublishedDate" Description="@activity.Description" Title="@activity.Title" PhotoPath="@activity.Photo.PhotoPath"></PostCard>
     }
 </MudGrid>
-
+</MudItem>
 @code {
+        [CascadingParameter]
+    bool isCollapsedMenu { get; set; } = false;
     private List<Activity> Activities { get; set; } = new();
     private DialogOptions _dialogOption = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = false, };
 

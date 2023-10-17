@@ -1,39 +1,49 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 <PageTitle>PUST CSE Alumni</PageTitle>
 
 <div class="page">
+    <CascadingValue Value="profile">
+
     <div class="sidebar">
-        <CascadingValue Value="profile">
-            <NavMenu />
-        </CascadingValue>
+            <div style="width:100vw;display:flex;background-color:white;">
+                <TopRowLogo onCollapseMenu="ToggleNavMenu" />
+                <MudItem Class="flex-grow-1"></MudItem>
+                <div class="top-row">
+                    <MudImage Style="margin-right:15px" Src="images/ThemeLightMode.svg"></MudImage>
+                    <AuthorizeView>
+                        <Authorized>
+                            <MudImage Style="margin-right:8px" Src="images/NotificationIcon.svg"></MudImage>
+                            <form method="post" action="Identity/Account/LogOut">
+                                <MudIconButton ButtonType="ButtonType.Submit" Style="width:35px;height:35px;margin-left:0;" Icon="@Icons.Material.Filled.PowerSettingsNew"></MudIconButton>
+                            </form>
+                            <MudAvatar Style="margin:auto 4.5vw auto 1vw;" Image="@(profile.PhotoPath??"images/defaultProfile.jpg")"></MudAvatar>
+                        </Authorized>
+                        <NotAuthorized>
+                            <MudLink Href="Identity/Account/Register">Register</MudLink>
+                            <MudLink Style="margin:auto 4.5vw auto 1vw;" Href="Identity/Account/Login">Log in</MudLink>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                    @*<LoginDisplay />*@
+                </div>
+            </div>
     </div>
 
-    <main>
-        <div class="top-row">
-            <MudImage Style="margin-right:15px" Src="images/ThemeLightMode.svg"></MudImage>
-            <AuthorizeView>
-                <Authorized>
-                    <MudImage Style="margin-right:8px" Src="images/NotificationIcon.svg"></MudImage>
-                    <form method="post" action="Identity/Account/LogOut">
-                        <MudIconButton ButtonType="ButtonType.Submit" Style="width:35px;height:35px;margin-left:0;" Icon="@Icons.Material.Filled.PowerSettingsNew"></MudIconButton>
-                    </form>
-                    <MudAvatar Style="margin:auto 4.5vw auto 1vw;" Image="@(profile.PhotoPath??"images/defaultProfile.jpg")"></MudAvatar>
-                </Authorized>
-                <NotAuthorized>
-                    <MudLink Href="Identity/Account/Register">Register</MudLink>
-                    <MudLink Style="margin:auto 4.5vw auto 1vw;" Href="Identity/Account/Login">Log in</MudLink>
-                </NotAuthorized>
-            </AuthorizeView>
-            @*<LoginDisplay />*@
-        </div>
-
-        <article class="content px-4">
-            @Body
+    <main style="display:flex;">
+        <MudItem Class=@(collapseNavMenu ? "d-none":"") Style="width:20vw;">
+            <SideBar />
+        </MudItem>
+            <article class="content" style="@(collapseNavMenu? "width:100vw;":"width:80vw;padding:0 3vw 0 1vw;")">
+            @*padding:20px 7vw;*@
+            <CascadingValue Value="collapseNavMenu">
+                @Body
+            </CascadingValue>
         </article>
     </main>
+        </CascadingValue>
 </div>
 
 @code {
@@ -44,6 +54,10 @@
 
     public string userEmail { get; set; } = string.Empty;
     public Profile profile = new();
+    public string display = string.Empty;
+
+    private bool collapseNavMenu = true;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     protected async override Task OnInitializedAsync()
     {
@@ -53,5 +67,10 @@
             userEmail = user.Identity.Name ?? "";
             profile = await ProfileService.GetProfileByEmail(userEmail);
         }
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
     }
 }

@@ -3,7 +3,9 @@
 @inject IActivityService _activityService
 @inject ISnackbar _snackBar
 @inject IDialogService _dialogService
+@attribute [Authorize]
 
+<MudItem Style=@(isCollapsedMenu?"padding:30px 7vw":"padding-top:30px;padding-left:50px;")>
 <MudGrid Class="pt-2 pb-5 pr-3">
     <AuthorizeView Roles="Admin, Moderator">
 	    <MudItem xs="12">
@@ -15,15 +17,15 @@
     </MudItem>
     @foreach(var activity in Activities)
     {
-        <MudItem xs="12" sm="6" md="4" lg="3">
+       @* <MudItem xs="12" sm="6" md="4" lg="3">
             <MudCard Style="border-radius:3px 3px 8px 8px;">
                 <MudToolBar Style="border-radius:2px 2px 0px 0px;background-color:#1e1e2d;" Class="px-2">
                     <MudSpacer />
                     <MudIconButton Icon="@Icons.Material.Outlined.RemoveRedEye" Color="Color.Tertiary" />
-                    @*<AuthorizeView Roles="Admin, Moderator">*@
+                    <AuthorizeView Roles="Admin, Moderator">
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(()=>EditActivity(activity))" Color="Color.Info" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=>Delete(activity))" Color="Color.Secondary" />
-                    @*</AuthorizeView>*@
+                    </AuthorizeView>
                 </MudToolBar>
                 
                 <MudCardContent>
@@ -38,11 +40,66 @@
                     </MudItem>
                 </MudCardContent>
             </MudCard>
-	    </MudItem>
+	    </MudItem>*@
+    <MudItem Class="post">
+        <MudCard Elevation="2" Style="border-radius:3px 3px 8px 8px;min-width:300px;height:auto">
+            <MudCardContent>
+                <AuthorizeView Roles="Admin, Moderator">
+                        <MudToolBar Style="border-radius:3px 4px 0px 0;background-image: linear-gradient(to right, #141e30, #243b55);" Class="px-2">
+                        <MudSpacer />
+                            <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(()=>EditActivity(activity))" Color="Color.Info" />
+                            <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=>Delete(activity))" Color="Color.Secondary" />
+                    </MudToolBar>
+                 </AuthorizeView>
+                <MudItem Style="width:100%;">
+                        <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%;" Height="150" Src="@activity.Photo.PhotoPath"></MudImage>
+                </MudItem>
+                <MudItem Class="pt-2 px-3">
+                        <MudText Typo="Typo.h5">@activity.Title</MudText>
+                </MudItem>
+                    <MudItem Class="px-3">
+                    <MudText Typo="Typo.caption">@activity.PublishedDate.ToString("dd MMMM, yyyy")</MudText>
+                </MudItem>
+                @if (!string.IsNullOrEmpty(activity.Description))
+                {
+                        <MudItem Class="px-3">
+                        <MudText Style="max-height: 340px;" Typo="Typo.body2">@activity.Description.Substring(0,Math.Min(activity.Description.Length,80))@(activity.Description.Length > 80 ? " ..." : "")</MudText>
+                        </MudItem>
+                }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
     }
 </MudGrid>
+</MudItem>
+<style>
+    .mud-card-content {
+        padding: 0 0 25px 0;
+    }
+
+    .mud-card {
+        height: 100%;
+        height: 338px;
+        max-width: 300px;
+        position: relative;
+    }
+
+    .post:hover .mud-card {
+        box-shadow: var(--mud-elevation-4);
+    }
+
+    p {
+        word-wrap: anywhere;
+    }
+
+    .post .mud-icon-root.mud-svg-icon {
+        fill: white;
+    }
+</style>
 
 @code {
+        [CascadingParameter]
+        bool isCollapsedMenu { get; set; } = false;
     private List<Activity> Activities { get; set; } = new();
     private DialogOptions _dialogOption = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = false, };
 

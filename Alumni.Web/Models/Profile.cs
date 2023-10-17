@@ -9,8 +9,7 @@
         public Gender? Gender { get; set; }
         public DateTime? BirthDate { get; set; }
         public string? PhotoPath { get; set; }
-
-        public ICollection<PhoneNumber> PhoneNumbers { get; set; }
+        public List<PhoneNumber> PhoneNumbers { get; set; }
         public string? Email { get; set; }
         public string? GithubUrl { get; set; }
         public string? LinkedInUrl { get; set; }

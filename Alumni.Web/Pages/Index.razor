@@ -1,9 +1,381 @@
 ﻿@page "/"
+@using Alumni.Web.Components;
+@inject IActivityService _activityService
+@inject IEventService _eventService
+@inject IGalleryService _galleryService
+@inject INoticeService _noticeService
+@inject ISnackbar _snackBar
+@*height:calc(100vh - 79px);*@
+<MudItem>
+    <MudCarousel Class="" Style="height:calc(100vh - 79px);min-height:500px;" ShowArrows="false" ShowBullets="true" EnableSwipeGesture="true" AutoCycle=true TData="object">
+        <MudCarouselItem Transition="Transition.Fade" Color="Color.Primary">
+            <div class="d-flex" style="height:100%">
+                <MudImage ObjectFit=ObjectFit.Cover Style="width:100%;"  Src="images/slider6.jpg"></MudImage>
+            </div>
+        </MudCarouselItem>
+        @foreach(var item in Photos){
+            <MudCarouselItem Transition="Transition.Fade" Color="Color.Primary">
+                <div class="d-flex" style="height:100%">
+                    <MudImage ObjectFit=ObjectFit.Cover Style="width:100%;"  Src="@item.PhotoPath"></MudImage>
+                </div>
+            </MudCarouselItem>
+        }
+        @*<MudCarouselItem Transition="Transition.Fade" Color="Color.Primary">
+            <div class="d-flex" style="height:100%">
+                <MudImage ObjectFit=ObjectFit.Cover Style="width:100%;"  Src="images/slider1.jpeg"></MudImage>
+            </div>
+        </MudCarouselItem>
+        <MudCarouselItem Transition="Transition.Fade" Color="Color.Secondary">
+            <div class="d-flex" style="height:100%">
+                <MudImage ObjectFit=ObjectFit.Cover Style="width:100%;" Src="images/slider2.jpeg"></MudImage>
+            </div>
+        </MudCarouselItem>
+        <MudCarouselItem Transition="Transition.Fade">
+            <div class="d-flex" style="height:100%">
+                <MudImage ObjectFit=ObjectFit.Cover Style="width:100%;" Src="images/slider3.jpeg"></MudImage>
+            </div>
+        </MudCarouselItem>
+        <MudCarouselItem Transition="Transition.Fade">
+            <div class="d-flex" style="height:100%">
+                <MudImage ObjectFit=ObjectFit.Cover Style="width:100%;" Src="images/slider4.jpeg"></MudImage>
+            </div>
+        </MudCarouselItem>*@
+    </MudCarousel>
 
-<PageTitle>Index</PageTitle>
+    <MudGrid Class="py-10 about">
+        <MudItem xs="12">
+            <MudText Style="font-size:32px;text-align:center;font-weight:600;">About Us</MudText>
+            <MudText Style="font-size:20px;text-align:center;padding:0 22vw">We are the CSE Alumni Association Of Pabna University of Science and Technology</MudText>
+        </MudItem>
+        <hr class="divider" />
+        <MudItem xs="12" Class="d-flex justify-content-center pt-3">
+            <MudItem Style="width:30vw;min-width:300px">
+                <MudText Class="mb-3" Style="font-size:16px;text-align:justify;line-height:26.5px;">
+                    The objectives of this alumni association are to build active communication network
+                    among all the present and ex-students of the Department of Physics through various programs
+                    and to contribute in the academic development of the Physics Department and economic development
+                    of the country through the dissemination of new concepts in the relevant field.
+                </MudText>
+                <MudButton Variant=Variant.Outlined Color="Color.Tertiary" Href="inprogress">Read More</MudButton>
+                <MudButton Class="ml-2" Variant=Variant.Outlined Color=Color.Primary Href="Identity/Account/Register">Join Us</MudButton>
+            </MudItem>
+            <MudItem Class="ml-6" Style="width:30vw;min-width:300px">
+                <MudImage Elevation=2 Class="about-image" Style="" ObjectFit=ObjectFit.Cover Src="images/GalleryDefault.jpg"></MudImage>
+            </MudItem>
+        </MudItem>
+    </MudGrid>
 
-<h1>Hello, world!</h1>
+    <MudGrid Class="py-10 activity" Style="background-color:white;">
+        <MudItem xs="12">
+            <MudText Style="font-size:32px;text-align:center;font-weight:600;">Our Activity</MudText>
+            <MudText Style="font-size:18px;text-align:center;padding:0 25vw;">
+                To make a platform for strengthening social and professional contact
+                among the Alumnus and the Department by mutual exchange of knowledge and
+                experience in any academic activities.
+            </MudText>
+        </MudItem>
+        <MudItem Style="width:100vw">
+            <hr class="divider" />
+        </MudItem>
+        @*<MudItem Class="d-flex justify-content-center pt-3" Style="width:100vw;">*@
+        <MudItem Style="width:100vw;display:flex;flex-wrap:wrap;justify-content:center;">
+            @foreach (var activity in Activities.Take(8))
+            {
+                 <PostCard Date="@activity.PublishedDate" Description="@activity.Description" Title="@activity.Title" PhotoPath="@activity.Photo.PhotoPath"></PostCard>
+            }
+        </MudItem>
+    </MudGrid>
 
-Welcome to your new app.
+    <MudGrid Class="py-10 mt-3 event-gallery-notice">
+        <MudItem xs="12" Class="d-flex justify-content-center pt-3">
+            <MudItem Class="events" Style="width:30vw;min-width:300px">
+                <MudText Style="font-size:28px;text-align:center;font-weight:600;">Upcoming Events</MudText>
+                <MudItem Style="width:30vw;margin-bottom:20px;">
+                    <hr class="divider" />
+                </MudItem>
+                @foreach(var _event in UpcomingEvents.Take(3))
+                {   
+                    <MudLink Href="inprogress">
+                        <MudItem Class="d-flex my-2" Style="color:black;text-decoration:none">
+                            <MudItem Style="width:75px;height:100px;background-color:#546e7a;display:flex;color:white;">
+                                <MudItem Style="align-self:center;width:100%;">
+                                    <MudItem Class="py-1">
+                                        <MudText Style="font-weight:500;" Align="Align.Center">@_event.PublishedDate.ToString("dd")</MudText>
+                                    </MudItem>
+                                    <hr style="background-color:white;margin:0 5.5px;height:1.5px;" />
+                                    <MudItem Class="py-1">
+                                        <MudText Style="font-weight:500;" Align="Align.Center">@_event.PublishedDate.ToString("MMMM")</MudText>
+                                    </MudItem>
+                                </MudItem>
+                            </MudItem>
+                            <MudItem Class="pl-3">
+                                <MudItem>
+                                    <MudText Style="font-size:18px;font-weight:500;">@_event.Title</MudText>
+                                </MudItem>
+                                <MudItem Class="d-flex gap-1 py-1 pt-0">
+                                    <MudIcon Class="pt-1" Icon="@Icons.Material.Outlined.Timer"></MudIcon>
+                                    <MudText Typo="Typo.overline" Style="margin:-1px 0">@_event.PublishedDate.ToString("hh:mm tt")</MudText>
+                                </MudItem>
+                                @if (!string.IsNullOrEmpty(_event.Description))
+                                {   
+                                    <MudItem>
+                                        <MudText Typo="Typo.body2">@_event.Description.Substring(0,Math.Min(_event.Description.Length,80))@(_event.Description.Length > 80 ? " ..." : "")</MudText>
+                                    </MudItem>
+                                }
+                            </MudItem>
+                        </MudItem>
+                    </MudLink>
+                }
+                <MudButton Href="event" Class="mt-4" Color=Color.Info Variant="Variant.Filled">All Events</MudButton>
+            </MudItem>
+            <MudDivider Style="height:100%;width:2px;" Vertical="true" />
+            <MudItem Class="ml-6 notice" Style="width:30vw;min-width:300px">
+                <MudText Style="font-size:28px;text-align:center;font-weight:600;">Recent Notices</MudText>
+                <MudItem Style="width:30vw">
+                    <hr class="divider" />
+                </MudItem>
+                @foreach (var notice in Notices.Take(5))
+                {
+                    <MudLink Href="inprogress">
+                        <MudItem Class="d-flex px-2 py-3 my-2" Style="border-radius:12px;color:black;width:100%;background-color:white;">
+                           <MudItem Style="width:60px;margin:auto 0;">
+                               @*check photopath*@
+                               <MudAvatar Image="@notice.Photo.PhotoPath"></MudAvatar>
+                           </MudItem>
+                            <MudItem Class="pl-2">
+                                <MudItem Class="d-flex">
+                                    <MudText Style="font-size:18px;font-weight:500;">@notice.Title</MudText>
+                                    <MudItem Class="d-flex gap-1 py-1 pl-2 pt-0">
+                                        <MudIcon Class="pt-1" Icon="@Icons.Material.Outlined.Timer"></MudIcon>
+                                        <MudText Typo="Typo.overline" Style="margin:-1px 0">@notice.PublishedDate.ToString("hh:mm tt")</MudText>
+                                    </MudItem>
+                                </MudItem>
+                                @if (!string.IsNullOrEmpty(notice.Description))
+                                {
+                                    <MudItem>
+                                        <MudText Typo="Typo.body2">@notice.Description.Substring(0,Math.Min(notice.Description.Length,50))@(notice.Description.Length > 80 ? " ..." : "")</MudText>
+                                        </MudItem>
+                                }
+                            </MudItem>
+                        </MudItem>
+                    </MudLink>
+                }
+                <MudButton Href="notice" Class="mt-3" Color=Color.Info Variant="Variant.Filled">All Notices</MudButton>
+            </MudItem>
+        </MudItem>
+    </MudGrid>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    <MudGrid Class="py-10 px-16 gallery" Style="background-color:white;">
+        <MudItem Style="width:100vw;">
+            <MudText Style="font-size:32px;text-align:center;font-weight:600;">Gallery</MudText>
+        </MudItem>
+        <MudItem Style="width:100vw;padding-top:0px;;">
+            <hr class="divider" />
+        </MudItem>
+        <MudItem Style="width:100vw;display:flex;flex-wrap:wrap;justify-content:center;">
+            @foreach (var photo in Photos.Take(8))
+            {
+                <MudCard Elevation=4 Class="mx-3 my-3 photo-container">
+                    <MudImage Width="250" Height="150" ObjectFit=ObjectFit.Cover Src="@photo.PhotoPath"></MudImage>
+                </MudCard>
+            }
+        </MudItem>
+    </MudGrid>
+
+    <MudGrid Class="pt-10 footer" Style="background-color:#202633;color:white" >
+        <MudItem xs="1"></MudItem>
+        <MudItem xs="3">
+            <MudItem>
+                <MudText Style="font-weight:600;padding-bottom:20px;" Typo="Typo.h6">CSEAAPUST.ORG</MudText>
+            </MudItem>
+            <MudItem Class="d-flex pb-3">
+                <MudItem Class="pt-1">
+                    <MudIcon Icon="@Icons.Material.Filled.Phone"></MudIcon>
+                </MudItem>
+                <MudItem Class="pl-4">
+                    <MudText>+880 1797 736503</MudText>
+                    <MudText>+880 1937 758956</MudText>
+                </MudItem>
+            </MudItem>
+            <MudItem Class="d-flex pb-3">
+                <MudItem Class="pt-1">
+                    <MudIcon Icon="@Icons.Material.Filled.Email"></MudIcon>
+                </MudItem>
+                <MudItem Class="pl-4">
+                    <MudText>cse@pust.ac.bd</MudText>
+                    <MudText>fardawshassan@pust.ac.bd</MudText>
+                </MudItem>
+            </MudItem>
+            <MudItem Class="d-flex pb-3">
+                <MudItem Class="pt-1">
+                    <MudIcon Icon="@Icons.Material.Filled.LocationOn"></MudIcon>
+                </MudItem>
+                <MudItem Class="pl-4">
+                    <MudText>Department of Computer Science and Engineering</MudText>
+                    <MudText>M. A. Wazed Mia Science Building,<br />Pabna University of Science and Technology, Pabna</MudText>
+                </MudItem>
+            </MudItem>
+        </MudItem>
+        <MudItem xs="3">
+            <MudItem>
+                <MudText Style="font-weight:600;padding-bottom:20px;" Typo="Typo.h6">Essential Links</MudText>
+            </MudItem>
+            <MudItem Class="d-flex pb-3">
+                <MudItem Class="">
+                    <MudIcon Icon="@Icons.Material.Filled.KeyboardDoubleArrowRight"></MudIcon>
+                </MudItem>
+                <MudItem Class="pl-3">
+                    <MudLink Href="https://www.pust.ac.bd/"><MudText>PUST Official Website</MudText></MudLink>
+                </MudItem>
+            </MudItem>
+            <MudItem Class="d-flex pb-3">
+                <MudItem Class="">
+                    <MudIcon Icon="@Icons.Material.Filled.KeyboardDoubleArrowRight"></MudIcon>
+                </MudItem>
+                <MudItem Class="pl-3">
+                    <MudLink Href="https://www.pust.ac.bd/academic/departments/dept_teachers/D01"><MudText>Department of CSE, PUST</MudText></MudLink>
+                </MudItem>
+            </MudItem>
+            <MudItem Class="d-flex pb-3">
+                <MudItem Class="">
+                    <MudIcon Icon="@Icons.Material.Filled.KeyboardDoubleArrowRight"></MudIcon>
+                </MudItem>
+                <MudItem Class="pl-3">
+                    <MudLink Href="https://www.pust.ac.bd/academic/faculties"><MudText>Engineering Faculty, PUST</MudText></MudLink>
+                </MudItem>
+            </MudItem>
+        </MudItem>
+        <MudItem xs="4">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3644.5292202633896!2d89.27678087501943!3d24.012396078668353!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39fe84f0ba7b9c97%3A0x8335f1483ed276e3!2sDr.%20M.%20A.%20Wazed%20Miah%20Science%20Building%2C%20PUST!5e0!3m2!1sen!2sbd!4v1697491099951!5m2!1sen!2sbd" width="400" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </MudItem>
+        <MudItem xs="1"></MudItem>
+        <MudItem xs="12">
+            <hr />
+            <MudItem Style="">
+                <MudText Typo=Typo.subtitle2 Align="Align.Center">Copyright © 2023 CSEAA_PUST All rights reserved </MudText>
+            </MudItem>
+            <MudItem Style="padding-bottom:7px;">
+                <MudText Style="display:block;" Typo=Typo.overline Align="Align.Center">Developed by Fardaws Hassan Shuvro</MudText>
+            </MudItem>
+        </MudItem>
+     </MudGrid>
+
+</MudItem>
+
+
+<style>
+    .divider{
+        height: 7px !important;
+        width: 66px;
+        margin: 8px auto 11px auto;
+        border-radius: 25px;
+        transition: width ease-in-out .25s;
+    }
+
+    .about:hover .divider{
+        width: 120px;
+        transition: width ease-in-out .25s;
+    }
+    
+    .activity:hover .divider{
+        width: 120px;
+        transition: width ease-in-out .25s;
+    }
+    
+/*    .event-gallery-notice:hover .divider {
+        width: 120px;
+        transition: width ease-in-out .25s;
+    }*/
+    
+    .events:hover .divider {
+        width: 120px;
+        transition: width ease-in-out .25s;
+    }
+
+    .events .divider{
+        height: 5px !important;
+        width: 80px;
+    }
+   
+    
+    .notice:hover .divider {
+        width: 120px;
+        transition: width ease-in-out .25s;
+    }
+    
+    .gallery:hover .divider {
+        width: 120px;
+        transition: width ease-in-out .25s;
+    }
+
+    .notice .divider {
+        height: 5px !important;
+        width: 80px;
+    }
+
+    .about-image {
+        width: 100%;
+        padding: 3px;
+        border: 1px solid #ddd;
+        transition: all .5s ease 0s;
+        background: rgba(0,0,0,.1);
+    }
+
+    .events > .mud-button-filled.mud-button-filled-info {
+        background-color: #546e7a;
+    }
+    
+    .notice > .mud-button-filled.mud-button-filled-info {
+        background-color: #546e7a;
+    }
+
+    .events a{
+        text-decoration:none !important;
+    }
+
+    .notice a{
+        text-decoration:none !important;
+    }
+
+    .footer p{
+        color:white;
+    }  
+    .footer a{
+        text-decoration:none !important;
+        color:white;
+    }
+
+    .photo-container{
+        display: inline-table;
+        height: 150px !important;
+    }
+</style>
+
+@code {
+    //[CascadingParameter]
+    //bool isCollapse { get; set; } = true;
+    private List<Activity> Activities { get; set; } = new();
+    private List<Event> Events { get; set; } = new();
+    private List<Event> UpcomingEvents { get; set; } = new();
+    private List<PhotoDto> Photos { get; set; } = new();
+    private List<Notice> Notices { get; set; } = new();
+
+    private DialogOptions _dialogOption = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = false, };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Activities = await _activityService.GetActivities();
+            Events = await _eventService.GetEvents();
+            Photos = await _galleryService.GetPhotos();
+            Notices = await _noticeService.GetNotices();
+            //need filter
+            UpcomingEvents = Events.Take(3).ToList();
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

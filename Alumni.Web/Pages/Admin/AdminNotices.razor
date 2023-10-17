@@ -3,18 +3,22 @@
 @inject INoticeService _noticeService
 @inject ISnackbar _snackBar
 @inject IDialogService _dialogService
-
+@attribute [Authorize]
+<MudItem Style=@(isCollapsedMenu?"padding:30px 7vw":"padding-top:30px;padding-left:50px;")>
 <MudGrid Class="pt-2 pb-5 pr-3">
+    	<AuthorizeView Roles="Admin,Moderator">
+
     <MudItem xs="12">
         <MudButton OnClick="AddNotice" Style="border: 2px solid darkslategray;" DisableElevation Variant="Variant.Outlined" IconSize="Size.Large" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Error" Size="Size.Medium">New Notice</MudButton>
     </MudItem>
+    </AuthorizeView>
     <MudItem xs="10"></MudItem>
     <MudItem xs="12" Class="pt-2">
         <MudText Class="pb-1" Typo="Typo.h5">All Notices</MudText>
     </MudItem>
     @foreach (var notice in Notices)
     {
-        <MudItem xs="12" sm="6" md="4" lg="3">
+       @* <MudItem xs="12" sm="6" md="4" lg="3">
             <MudCard Style="border-radius:3px 3px 8px 8px;">
                 <MudToolBar Style="border-radius:2px 2px 0px 0px;background-color:#1e1e2d;" Class="px-2">
                     <MudSpacer />
@@ -35,11 +39,66 @@
                     </MudItem>
                 </MudCardContent>
             </MudCard>
-        </MudItem>
+        </MudItem>*@
+            <MudItem Class="post">
+                <MudCard Elevation="2" Style="border-radius:3px 3px 8px 8px;min-width:300px;height:auto;">
+                    <MudCardContent>
+                        <AuthorizeView Roles="Admin, Moderator">
+                            <MudToolBar Style="border-radius:3px 4px 0px 0;background-image: linear-gradient(to right, #141e30, #243b55);" Class="px-2">
+                                <MudSpacer />
+                                <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(()=>EditNotice(notice))" Color="Color.Info" />
+                                <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=>Delete(notice))" Color="Color.Secondary" />
+                            </MudToolBar>
+                        </AuthorizeView>
+                        <MudItem Style="width:100%;">
+                            <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%;" Height="150" Src="@notice.Photo.PhotoPath"></MudImage>
+                        </MudItem>
+                        <MudItem Class="pt-2 px-3">
+                            <MudText Typo="Typo.h5">@notice.Title</MudText>
+                        </MudItem>
+                        <MudItem Class="px-3">
+                            <MudText Typo="Typo.caption">@notice.PublishedDate.ToString("dd MMMM, yyyy")</MudText>
+                        </MudItem>
+                        @if (!string.IsNullOrEmpty(notice.Description))
+                        {
+                            <MudItem Class="px-3">
+                                <MudText Style="max-height: 340px;" Typo="Typo.body2">@notice.Description.Substring(0,Math.Min(notice.Description.Length,80))@(notice.Description.Length > 80 ? " ..." : "")</MudText>
+                                </MudItem>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
     }
 </MudGrid>
+</MudItem>
 
+<style>
+    .mud-card-content {
+        padding: 0 0 25px 0;
+    }
+
+    .mud-card {
+        height: 100%;
+        height: 338px;
+        max-width: 300px;
+        position: relative;
+    }
+
+    .post:hover .mud-card {
+        box-shadow: var(--mud-elevation-4);
+    }
+
+    p {
+        word-wrap: anywhere;
+    }
+
+    .post .mud-icon-root.mud-svg-icon {
+        fill: white;
+    }
+</style>
 @code {
+        [CascadingParameter]
+        bool isCollapsedMenu { get; set; } = false;
     private List<Notice> Notices { get; set; } = new();
     private DialogOptions _dialogOption = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = false, };
 
