@@ -1,3 +1,4 @@
 --- Profile edit request form admin
 --- Multiple Photo upload for a post in Activity, Event and Notice from admin
 --- Delete user when profile delete
+--- Forgot Password and Reset Password UI design
