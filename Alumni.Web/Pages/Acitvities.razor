@@ -1,0 +1,113 @@
+﻿@page "/activity"
+@using Alumni.Web.Components;
+@inject IActivityService _activityService
+@inject ISnackbar _snackBar
+@inject IDialogService _dialogService
+<MudItem Style=@(isCollapsedMenu?"padding:20px 7vw":"padding-top:20px;padding-left:20px;")>
+
+<MudGrid Class="pt-2 pb-5 pr-3">
+    <MudItem xs="12" Class="pt-4">
+        <MudText Class="pb-1" Typo="Typo.h5">All Activities</MudText>
+    </MudItem>
+    @foreach(var activity in Activities)
+    {
+        <PostCard Date="@activity.PublishedDate" Description="@activity.Description" Title="@activity.Title" PhotoPath="@activity.Photo.PhotoPath"></PostCard>
+    }
+</MudGrid>
+</MudItem>
+@code {
+        [CascadingParameter]
+    bool isCollapsedMenu { get; set; } = false;
+    private List<Activity> Activities { get; set; } = new();
+    private DialogOptions _dialogOption = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = false, };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Activities = await _activityService.GetActivities();
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+
+    private async Task AddActivity()
+    {
+        try
+        {
+            var dialog = await _dialogService.ShowAsync<ActivityPostDialog>("New Activity", _dialogOption);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var model = result.Data as Activity;
+                var newActivity = await _activityService.AddPost(model);
+                if (newActivity is not null)
+                {
+                    Activities.Add(newActivity);
+                    _snackBar.Add("Activity added sucessfully", Severity.Success);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task EditActivity(Activity activity)
+    {
+        try
+        {
+            var dialogData = new DialogParameters
+                {
+                    ["Activity"] = activity,
+                };
+            var dialog = await _dialogService.ShowAsync<ActivityPostDialog>("Edit Post", dialogData, _dialogOption);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var model = result.Data as Activity;
+                var updatedPhoto = await _activityService.UpdatePost(model.ActivityId, model);
+                if (updatedPhoto is not null)
+                {
+                    int index = Activities.IndexOf(activity);
+                    Activities[index] = updatedPhoto;
+                    _snackBar.Add("Activity added sucessfully", Severity.Success);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task Delete(Activity activity)
+    {
+
+        var parameters = new DialogParameters<ConfirmationDialog>();
+        parameters.Add(x => x.ContentText, !string.IsNullOrEmpty(activity.Title) ? activity.Title: "Activity");
+        var dialog = await _dialogService.ShowAsync<ConfirmationDialog>("Delete Post", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await _activityService.DeletePost(activity.ActivityId);
+
+            if (response.isSuccess)
+            {
+                Activities.Remove(activity);
+                _snackBar.Add(response.Message, Severity.Success);
+            }
+            else
+            {
+                _snackBar.Add(response.Message, Severity.Error);
+            }
+        }
+    }
+}

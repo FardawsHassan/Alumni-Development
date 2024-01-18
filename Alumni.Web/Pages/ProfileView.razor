@@ -1,7 +1,7 @@
 ﻿@page "/profile/view/{ProfileId:int}"
 @inject IProfileService ProfileService
 
-
+<MudItem Style=@(isCollapsedMenu?"padding:30px 8vw":"padding-top:30px;padding-left:70px;")>
 <MudGrid>
 	<MudItem>
 		<MudAvatar Style="width:250px;height:250px;">
@@ -149,7 +149,7 @@
 
 	</MudItem>
 </MudGrid>
-
+</MudItem>
 <style>
 	.group-header{
 		font-size: 18px;
@@ -172,6 +172,8 @@
 </style>
 
 @code {
+	[CascadingParameter]
+	bool isCollapsedMenu { get; set; } = false;
 	[Parameter]
 	public int ProfileId { get; set; }
 	private Profile profile { get; set; } = new();

@@ -1,0 +1,87 @@
+﻿@inject AuthenticationStateProvider AuthencationStateProvider
+@inject NavigationManager NavigationManager
+@using Alumni.Web.Services
+
+
+<div class="top-row navbar" style="width:20vw;min-width:220px">
+    <div class="container-fluid" style="padding:0">
+        <MudItem Class="d-flex" Style="padding-left:5vw">
+            <MudImage Style="padding-bottom:1px;" Height="58" Width="50" ObjectFit=ObjectFit.Contain Src="images/pust_logo.png"></MudImage>
+            <MudText Style="margin: auto 0 auto 11px" Class="LogoText">CSE</MudText>
+        </MudItem>
+        <MudImage Class="navbar-toggler" @onclick="ToggleNavMenu" Src="images/MenuBar.svg"></MudImage>
+    </div>
+</div>
+
+
+
+<style>
+    .LogoText {
+        color: #000;
+        font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        font-size: 31px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 24px;
+    }
+
+    .nav-item {
+        padding-bottom: 0 !important;
+    }
+
+    .nav-link {
+        padding: .65rem 1rem;
+    }
+
+    .link-header {
+        color: #9DA9BB;
+        font-family: Inter;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 24px; /* 165.808% */
+    }
+</style>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> _authenticationState { get; set; }
+    [CascadingParameter]
+    private Profile profile { get; set; } = new();
+    [Inject]
+    private IProfileService ProfileService { get; set; }
+    [Parameter]
+    public EventCallback<bool> onCollapseMenu { get; set; }
+
+    private bool collapseNavMenu = true;
+    public string userEmail { get; set; } = string.Empty;
+    private bool isAdmin = false;
+    private bool isAuthenticated = false;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        var user = (await _authenticationState).User;
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            isAuthenticated = true;
+            userEmail = user.Identity.Name ?? "";
+            if (userEmail == "admin@gmail.com")
+            {
+                isAdmin = true;
+            }
+        }
+        //else
+        //{
+        //    NavigationManager.NavigateTo("Identity/Account/Login", forceLoad: true);
+        //}
+    }
+
+    private async Task ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+        await onCollapseMenu.InvokeAsync(collapseNavMenu);
+    }
+}

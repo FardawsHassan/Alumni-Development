@@ -1,0 +1,136 @@
+﻿@page "/event"
+@using Alumni.Web.Components;
+@inject IEventService _eventService
+@inject ISnackbar _snackBar
+@inject IDialogService _dialogService
+
+<MudItem Style=@(isCollapsedMenu?"padding:20px 7vw":"padding-top:30px;padding-left:20px;")>
+    <MudGrid Class="pt-2 pb-5 pr-3">
+        <MudItem xs="12" Class="pt-2">
+            <MudText Class="pb-1" Typo="Typo.h5">All Events</MudText>
+        </MudItem>
+        @foreach (var _event in _events)
+        {
+@*            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudCard Style="border-radius:3px 3px 8px 8px;">
+                    <MudToolBar Style="border-radius:2px 2px 0px 0px;background-color:#1e1e2d;" Class="px-2">
+                        <MudSpacer />
+                        <MudIconButton Icon="@Icons.Material.Outlined.RemoveRedEye" Color="Color.Tertiary" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(()=>EditEvent(_event))" Color="Color.Info" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=>Delete(_event))" Color="Color.Secondary" />
+                    </MudToolBar>
+                
+                    <MudCardContent>
+                        <MudItem Style="width:100%;">
+                            <MudImage ObjectFit="ObjectFit.Contain" Style="width:100%;" Height="150" Src="@_event.Photo.PhotoPath"></MudImage>
+                        </MudItem>
+                        <MudItem>
+                        <MudText Typo="Typo.h5">@_event.Title</MudText>
+                        </MudItem>
+                        <MudItem>
+                        <MudText Typo="Typo.body2">@_event.Description</MudText>
+                        </MudItem>
+                    </MudCardContent>
+                </MudCard>
+	        </MudItem>*@
+            <PostCard Date="@_event.PublishedDate" Description="@_event.Description" Title="@_event.Title" PhotoPath="@_event.Photo.PhotoPath"></PostCard>
+        }
+    </MudGrid>
+</MudItem>
+
+@code {
+    [CascadingParameter]
+    bool isCollapsedMenu { get; set; } = false;
+    private List<Event> _events { get; set; } = new();
+    private DialogOptions _dialogOption = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = false, };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _events = await _eventService.GetEvents();
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+
+    private async Task AddEvent()
+    {
+        try
+        {
+            var dialog = await _dialogService.ShowAsync<EventPostDialog>("New Event", _dialogOption);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var model = result.Data as Event;
+                var newEvent = await _eventService.AddPost(model);
+                if (newEvent is not null)
+                {
+                    _events.Add(newEvent);
+                    _snackBar.Add("Event added sucessfully", Severity.Success);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task EditEvent(Event _event)
+    {
+        try
+        {
+            var dialogData = new DialogParameters
+                {
+                    ["Event"] = _event,
+                };
+            var dialog = await _dialogService.ShowAsync<EventPostDialog>("Edit Post", dialogData, _dialogOption);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var model = result.Data as Event;
+                var updatedEvent= await _eventService.UpdatePost(model.EventId, model);
+                if (updatedEvent is not null)
+                {
+                    int index = _events.IndexOf(_event);
+                    _events[index] = updatedEvent;
+                    _snackBar.Add("Event updated sucessfully", Severity.Success);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task Delete(Event _event)
+    {
+
+        var parameters = new DialogParameters<ConfirmationDialog>();
+        parameters.Add(x => x.ContentText, !string.IsNullOrEmpty(_event.Title) ? _event.Title : "Event");
+        var dialog = await _dialogService.ShowAsync<ConfirmationDialog>("Delete Post", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await _eventService.DeletePost(_event.EventId);
+
+            if (response.isSuccess)
+            {
+                _events.Remove(_event);
+                _snackBar.Add(response.Message, Severity.Success);
+            }
+            else
+            {
+                _snackBar.Add(response.Message, Severity.Error);
+            }
+        }
+    }
+}

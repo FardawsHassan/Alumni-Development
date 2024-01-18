@@ -9,8 +9,7 @@
         public Gender? Gender { get; set; }
         public DateTime? BirthDate { get; set; }
         public string? PhotoPath { get; set; }
-
-        public ICollection<PhoneNumber> PhoneNumbers { get; set; }
+        public List<PhoneNumber> PhoneNumbers { get; set; }
         public string? Email { get; set; }
         public string? GithubUrl { get; set; }
         public string? LinkedInUrl { get; set; }
@@ -23,7 +22,7 @@
         public string? Batches { get; set; }
         public bool? isCurrentStudent { get; set; }
         public bool? isRenowned { get; set; }
-        public bool? isApproved { get; set; }
+        public bool isApproved { get; set; }
 
         public List<PostGrad> PostGrads { get; set; }
         public List<Business> Businesses { get; set; }

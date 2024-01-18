@@ -1,0 +1,195 @@
+﻿@inject IProfileService ProfileService
+@inject ISnackbar SnackBar
+
+<MudDialog>
+    <DialogContent>
+		<MudGrid>
+			<MudItem>
+				<MudAvatar Style="width:250px;height:250px;">
+					<MudImage Src="@profile.PhotoPath"></MudImage>
+				</MudAvatar>
+			</MudItem>
+			<MudItem Class="mt-5 pl-6">
+				<MudText Typo="Typo.h6" Style="font-weight:bold;padding-bottom:12px;">@profile.FullName (@profile.NickName)</MudText>
+				@if (profile.Session is not null)
+				{
+					<MudText Typo="Typo.body1"><b>Session:</b> @profile.Session - @(profile.Session + 1)</MudText>
+				}
+				@if (profile.Gender is not null)
+				{
+					<MudText Typo="Typo.body1"><b>Gender:</b> @profile.Gender</MudText>
+				}
+				@if (profile.BirthDate is not null)
+				{
+					<MudText Typo="Typo.body1"><b>BirthDate: </b> @profile.BirthDate.Value.ToString("dd MMM yyyy")</MudText>
+				}
+			</MudItem>
+		</MudGrid>
+		<MudGrid>
+			<MudItem Class="group-info" xs="6">
+				<MudItem>
+					<MudText Class="group-header">Education</MudText>
+					<MudText Class="info-title" Style="font-size:16px;font-weight:600">UnderGrad:</MudText>
+					<MudText Class="info" Style="font-size:16px;font-weight:500;text-transform: uppercase;">Pabna University of Science and Technology,</MudText>
+					<MudText Class="info" Typo="Typo.body1">Department of <span style="font-weight:500">Computer Science and Engineering</span></MudText>
+					@if (profile.Batches is not null && profile.Batches.Count() > 0)
+					{
+						string batches = profile.Batches[0].ToString();
+						@foreach (var batch in profile.Batches)
+						{
+							@if (batch == profile.Batches[0])
+							{
+								continue;
+							}
+							batches += $" - {batch}";
+						}
+						<MudText Class="info" Typo="Typo.body1"><b>Batch:</b> @batches</MudText>
+
+					}
+					@if (profile.BirthDate is not null)
+					{
+						<MudText Class="info"><b>Roll:</b> @profile.Roll</MudText>
+					}
+
+					@if (profile.PostGrads is not null && profile.PostGrads.Count() > 0)
+					{
+						<MudText Class="info-title" Style="font-size:16px;font-weight:600">PostGrad:</MudText>
+						@foreach (var postGrad in profile.PostGrads)
+						{
+							<MudText Class="info" Typo="Typo.body1"><span style="font-weight:500">@postGrad.PostGradDegree</span> in <span style="font-weight:500">@postGrad.PostGradField,</span></MudText>
+							<MudText Class="info mb-3" Style="font-size:16px;font-weight:500;text-transform: uppercase;">@postGrad.PostGradUniversity</MudText>
+						}
+					}
+				</MudItem>
+				<MudItem Style="margin-top:60px;margin-bottom:60px;">
+					<MudText Class="group-header" Style="margin-bottom:15px;">Contact</MudText>
+					@if (profile.PhoneNumbers is not null && profile.PhoneNumbers.Count() > 0)
+					{
+						string phoneNumbers = profile.PhoneNumbers.ElementAt(0).Phone_Number;
+						@foreach (var number in profile.PhoneNumbers)
+						{
+							@if (number.Phone_Number == profile.PhoneNumbers.ElementAt(0).Phone_Number)
+							{
+								continue;
+							}
+							phoneNumbers += $", {number.Phone_Number}";
+						}
+						<MudText Class="info"><b>Phone:</b> @phoneNumbers</MudText>
+
+					}
+					<MudText Class="info"><b>Email: </b>@profile.Email</MudText>
+					@if (profile.CurrentAddress is not null)
+					{
+						<MudText Class="info"><b>Current Address: </b>@profile.CurrentAddress</MudText>
+					}
+					@if (profile.PermanantAddress is not null)
+					{
+						<MudText Class="info"><b>Permanant Address: </b>@profile.PermanantAddress</MudText>
+					}
+					<MudAvatarGroup Class="mt-3" Spacing="16" MaxColor="Color.Primary">
+						@if (profile.FacebookUrl is not null)
+						{
+							<MudLink Href="@profile.FacebookUrl"><MudIcon Style="margin-left:45px;" Color="Color.Dark" Icon="@Icons.Custom.Brands.Facebook" Size="Size.Large" /></MudLink>
+						}
+						@if (profile.LinkedInUrl is not null)
+						{
+							<MudLink Href="@profile.LinkedInUrl"><MudIcon Style="margin-left:30px;" Color="Color.Dark" Icon="@Icons.Custom.Brands.LinkedIn" Size="Size.Large" /></MudLink>
+						}
+						@if (profile.GithubUrl is not null)
+						{
+							<MudLink Href="@profile.GithubUrl"><MudIcon Style="padding:2px;margin-left:30px;" Color="Color.Dark" Icon="@Icons.Custom.Brands.GitHub" Size="Size.Large" /></MudLink>
+						}
+					</MudAvatarGroup>
+				</MudItem>
+			</MudItem>
+			<MudItem Class="group-info mb-5" xs="6">
+				<MudText Class="group-header">Work</MudText>
+
+				@if (profile.Businesses is not null && profile.Businesses.Count() > 0)
+				{
+					<MudText Class="info-title" Style="font-size:16px;font-weight:600">Business:</MudText>
+					@foreach (var business in profile.Businesses)
+					{
+						<MudText Class="info"><b>Business Type:</b> @business.BusinessType</MudText>
+						<MudText Class="info mb-3"><span style="font-weight:500">Working</span> from <span style="font-weight:500">@(business.StartDate == null ? "" : business.StartDate.Value.ToString("yyyy")) to @(business.EndDate == null ? "" : business.EndDate.Value.ToString("yyyy"))</span></MudText>
+					}
+				}
+
+				@if (profile.GovtJobs is not null && profile.GovtJobs.Count() > 0)
+				{
+					<MudText Class="info-title" Style="font-size:16px;font-weight:600">Govt. Job:</MudText>
+					@foreach (var jobs in profile.GovtJobs)
+					{
+						<MudText Class="info"><b>@jobs.Designation</b> at <b>@jobs.Organization</b></MudText>
+						<MudText Class="info mb-3"><span style="font-weight:500">Working</span> from <span style="font-weight:500">@(jobs.StartDate == null ? "" : @jobs.StartDate.Value.ToString("yyyy")) to @(jobs.EndDate == null ? "" : @jobs.EndDate.Value.ToString("yyyy"))</span></MudText>
+					}
+				}
+
+				@if (profile.PrivateJobs is not null && profile.PrivateJobs.Count() > 0)
+				{
+					<MudText Class="info-title" Style="font-size:16px;font-weight:600">Private Job:</MudText>
+					@foreach (var jobs in profile.PrivateJobs)
+					{
+						<MudText Class="info"><b>@jobs.Designation</b> at <b>@jobs.Organization</b></MudText>
+						<MudText Class="info mb-3"><span style="font-weight:500">Working</span> from <span style="font-weight:500">@(jobs.StartDate == null ? "" : jobs.StartDate.Value.ToString("yyyy")) to @(jobs.EndDate == null ? "" : @jobs.EndDate.Value.ToString("yyyy"))</span></MudText>
+					}
+				}
+
+				@if (profile.Freelance is not null && profile.Freelance.IsActive)
+				{
+					<MudText Class="info-title" Style="font-size:16px;font-weight:600">Freelancer:</MudText>
+					<MudText Class="info"><b>Working Fields: </b> @profile.Freelance.WorkingFields</MudText>
+					<MudText Class="info mb-3"><span style="font-weight:500">Working</span> from <span style="font-weight:500">@(profile.Freelance.StartDate == null ? "" : profile.Freelance.StartDate.Value.ToString("yyyy")) to @(profile.Freelance.EndDate == null ? "" : profile.Freelance.EndDate.Value.ToString("yyyy"))</span></MudText>
+				}
+
+				@if (profile.isUnemployeed is true)
+				{
+					<MudText Class="info-title" Style="font-size:16px;font-weight:800">Currently Unemployeed.</MudText>
+				}
+
+
+			</MudItem>
+		</MudGrid>
+        <MudButton DisableElevation Class="mt-3 mb-3 float-end" Variant=Variant.Filled Color=Color.Primary OnClick="Close">Close</MudButton>
+    </DialogContent>
+</MudDialog>
+
+<style>
+	.group-header {
+		font-size: 18px;
+		text-transform: uppercase;
+	}
+
+	.group-info {
+		min-width: 400px;
+		margin-top: 20px;
+	}
+
+	.info {
+		padding-left: 50px;
+	}
+
+	.info-title {
+		padding-top: 30px;
+		padding-left: 20px;
+	}
+</style>
+
+
+@code {
+    [CascadingParameter]
+    public MudDialogInstance Dialog { get; set; }
+	[Parameter]
+	public int ProfileId { get; set; }
+	private Profile profile { get; set; } = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		profile = await ProfileService.GetProfileById(ProfileId);
+	}
+
+
+
+    void Close() => Dialog.Close(DialogResult.Ok(true));
+}
+

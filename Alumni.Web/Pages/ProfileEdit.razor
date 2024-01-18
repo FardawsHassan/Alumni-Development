@@ -1,10 +1,16 @@
 ﻿@page "/profile/edit/{ProfileId:int}"
+@page "/profile/edit/"
 @inject IProfileService ProfileService
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
-
-<EditForm Model="@profile" OnValidSubmit="Submit">
-    <MudText Class="pb-1" Color="Color.Primary">Basic Details</MudText>
+@attribute [Authorize]
+<MudItem Style=@(isCollapsedMenu?"padding:30px 7vw":"padding-top:30px;padding-left:20px;")>
+    <MudItem xs="12" Class="pb-4">
+        <MudText Typo="Typo.h6">Edit Profile</MudText>
+    </MudItem>
+    <MudItem Style="padding:0 3.5vw">
+    <EditForm Model="@profile" OnValidSubmit="Submit">
+            <MudText Class="pb-1 form-header" Color="Color.Primary">Basic Details</MudText>
     <MudGrid>
         <MudItem xs="6">
             <MudTextField @bind-Value="profile.FullName" Label="Full Name" Variant="Variant.Outlined" Margin="Margin.Dense" />
@@ -34,7 +40,7 @@
         </MudItem>
     </MudGrid>
 
-    <MudText Class="pb-1 pt-4" Color="Color.Primary">Contact Details</MudText>
+            <MudText Class="pb-1 pt-4 form-header" Color="Color.Primary">Contact Details</MudText>
     <MudGrid>
         <MudItem xs="6">
             <MudTextField Disabled @bind-Value="profile.Email" Label="Email" Variant="Variant.Outlined" Margin="Margin.Dense" />
@@ -51,7 +57,7 @@
     </MudGrid>
 
 
-    <MudText Class="pb-1 pt-4" Color="Color.Primary">Department Details</MudText>
+            <MudText Class="pb-1 pt-4 form-header" Color="Color.Primary">Department Details</MudText>
     <MudGrid>
         <MudItem xs="4">
             <MudTextField @bind-Value="profile.Roll" Label="Roll" Variant="Variant.Outlined" Margin="Margin.Dense" />
@@ -68,12 +74,12 @@
         <MudItem xs="4">
             <MudCheckBox @bind-Checked="profile.isRenowned">Renowned</MudCheckBox>
         </MudItem>
-        <MudItem xs="4">
-            <MudCheckBox @bind-Checked="profile.isApproved">Approved</MudCheckBox>
-        </MudItem>
+            @*<MudItem xs="4">
+                <MudCheckBox @bind-Checked="profile.isApproved">Approved</MudCheckBox>
+            </MudItem>*@
     </MudGrid>
 
-    <MudText Class="pt-4" Color="Color.Primary">Optional Information</MudText>
+            <MudText Class="pt-4 form-header" Color="Color.Primary">Optional Information</MudText>
     <MudCheckBox Class="pt-1" @bind-Checked="isPhoneNumber">Phone Numbers</MudCheckBox>
     @if (isPhoneNumber)
     {
@@ -188,7 +194,7 @@
     {
         <MudGrid>
             <MudItem xs="4">
-                <MudTextField @bind-Value="profile.Freelance.WorkingFields" Label="Working Fields" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                <MudTextField  @bind-Value="profile.Freelance.WorkingFields" Label="Working Fields" Variant="Variant.Outlined" Margin="Margin.Dense" />
             </MudItem>
             <MudItem xs="4">
                 <MudDatePicker @bind-Date="profile.Freelance.StartDate" Label="Freelance Start Date" Variant="Variant.Outlined" Margin="Margin.Dense" />
@@ -204,11 +210,23 @@
     <MudItem Class="pt-10 pb-5 d-flex justify-end align-center">
         <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Success"><MudText>Submit</MudText></MudButton>
     </MudItem>
-</EditForm>
+    </EditForm>
+    </MudItem>
+</MudItem>
 
+<style>
+    .form-header {
+        font-size: 17px;
+        font-weight: 500;
+        margin-bottom: 13px;
+    }
+</style>
 @code {
+    [CascadingParameter]
+    bool isCollapsedMenu { get; set; } = false;
     [Parameter]
     public int ProfileId { get; set; }
+    [CascadingParameter]
     private Profile profile { get; set; } = new();
 
     private bool isPhoneNumber { get; set; } = false;
@@ -227,7 +245,6 @@
             profile.isUnemployeed = profile.isUnemployeed ?? false;
             profile.isCurrentStudent = profile.isCurrentStudent ?? false;
             profile.isRenowned = profile.isRenowned ?? false;
-            profile.isApproved = profile.isApproved ?? false;
             profile.Freelance = profile.Freelance ?? new() { ProfileId = profile.Id, IsActive = false };
 
             isPhoneNumber = profile.PhoneNumbers.Count() > 0 ? true : false;
