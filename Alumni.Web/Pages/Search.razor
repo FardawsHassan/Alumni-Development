@@ -1,5 +1,66 @@
 ﻿@page "/search"
 
-<PageTitle>search</PageTitle>
-
-<h1>search</h1>
+<MudItem Style=@(isCollapsedMenu?"padding:30px 8vw":"padding-top:30px;padding-left:70px;")>
+<MudGrid>
+	<MudItem xs="12">
+		<MudText Typo="Typo.h5">Search Members</MudText>
+	</MudItem>
+	<MudItem xs="3">
+		<MudSelect Margin="Margin.Dense" Style=" width:270px;" @bind-Value="SelectedSearchCatagory" Variant=Variant.Outlined AnchorOrigin="Origin.BottomCenter" Label="Search By" Placeholder="Please Select" AdornmentIcon="@Icons.Material.Filled.FilterAlt" AdornmentColor="Color.Primary">
+			<MudSelectItem Value="@("Name")">Name</MudSelectItem>
+			<MudSelectItem Value="@("Roll")">Roll</MudSelectItem>
+			<MudSelectItem Value="@("Session")">Session</MudSelectItem>
+			<MudSelectItem Value="@("Batch")">Batch</MudSelectItem>
+			<MudSelectItem Value="@("PostGrad")">Post Graduation</MudSelectItem>
+			<MudSelectItem Value="@("Business")">Business</MudSelectItem>
+			<MudSelectItem Value="@("GovtJob")">Government Job</MudSelectItem>
+			<MudSelectItem Value="@("privateJob")">Private Job</MudSelectItem>
+			<MudSelectItem Value="@("Freelancer")">Freelancer</MudSelectItem>
+			<MudSelectItem Value="@("Unemployeed")">Unemployeed</MudSelectItem>
+			<MudSelectItem Value="@("ActiveStudent")">Active Student</MudSelectItem>
+			<MudSelectItem Value="@("Renowned")">Renowned Members</MudSelectItem>
+			<MudSelectItem Value="@("City")">City</MudSelectItem>
+		</MudSelect>
+	</MudItem>
+	@if (SelectedSearchCatagory == "Name")
+	{
+		<MudItem xs="3">
+			<MudTextField Margin="Margin.Dense" @bind-Value="SearchText" Label="Name" Placeholder="Insert Name" Variant="Variant.Outlined" InputType="InputType.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.ShortText" />
+		</MudItem>
+	}
+	@if (SelectedSearchCatagory == "Roll")
+	{
+		<MudItem xs="3">
+			<MudTextField Margin="Margin.Dense" @bind-Value="SearchText" Label="Roll" Placeholder="Insert Roll" Variant="Variant.Outlined" InputType="InputType.Number" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.ShortText" />
+		</MudItem>
+	}
+	@if (SelectedSearchCatagory == "Session")
+	{
+		<MudItem xs="3">
+			<MudTextField Margin="Margin.Dense" @bind-Value="SearchText" Label="Session" Placeholder="Insert Session" Variant="Variant.Outlined" InputType="InputType.Number" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.ShortText" />
+		</MudItem>
+	}
+	@if (SelectedSearchCatagory == "Batch")
+	{
+		<MudItem xs="3">
+			<MudTextField Margin="Margin.Dense" @bind-Value="SearchText" Label="Batch" Placeholder="Insert Batch No." Variant="Variant.Outlined" InputType="InputType.Number" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.ShortText" />
+		</MudItem>
+	}
+	<MudItem xs="3" Style="margin:auto 0">
+		<MudButton Style="width:102px;height:39px;" DisableElevation Color="Color.Primary" Variant=Variant.Filled ButtonType="ButtonType.Submit">
+			<MudIcon Icon="@Icons.Material.Filled.Search"></MudIcon>
+			<MudText>Search</MudText>
+		</MudButton>
+	</MudItem>
+	<MudItem xs="3" Style="float:right;">
+		<MudTextField Margin="Margin.Dense" @bind-Value="FilterText" Label="Find" Placeholder="@("Find " + SelectedSearchCatagory)" Variant="Variant.Outlined" InputType="InputType.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.FilterList" />
+	</MudItem>
+</MudGrid>
+</MudItem>
+@code{
+	[CascadingParameter]
+	bool isCollapsedMenu { get; set; } = false;
+	public string SelectedSearchCatagory { get; set; } = "Name";
+	public string SearchText { get; set; } = "";
+	public string FilterText { get; set; } = "";
+}

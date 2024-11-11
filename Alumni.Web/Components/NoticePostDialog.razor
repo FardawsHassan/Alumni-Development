@@ -1,0 +1,116 @@
+﻿@inject ISnackbar _snackBar
+@inject IFileService _fileService
+
+<MudDialog>
+    <DialogContent>
+        <EditForm Model="@Notice" OnValidSubmit="Sumbit">
+            <MudTextField @bind-Value="Notice.Title" Label="Title" Margin="Margin.Dense" Variant="Variant.Outlined" Class="mb-3" />
+            <MudTextField @bind-Value="Notice.Description" Label="Description" Margin="Margin.Dense" Variant="Variant.Outlined" Class="mb-3" />
+            <MudFileUpload MaxBufferSize="@(maxFileSize)" Accept=".jpg, .jpeg, .png" T="IBrowserFile" Hidden="false" FilesChanged="OnInputFileChanged" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0">
+                <ButtonTemplate Context="ImageUpload">
+                    <MudPaper Height="150px" Width="200px" Outlined="true" Class="relative rounded-lg border-2 border-dashed pa-2 mud-width-full mud-height-full z-10">
+                        @if (string.IsNullOrEmpty(previewBase64data))
+                        {
+                            <MudText Typo="Typo.h6">Drag and drop photos here or click</MudText>
+                        }
+                        else
+                        {
+                            <MudImage Src="@previewBase64data" Width="150" Height="120" ObjectFit="ObjectFit.Contain" />
+                        }
+                    </MudPaper>
+                </ButtonTemplate>
+           </MudFileUpload>
+            <MudItem Class="mt-6 pb-4 d-flex justify-end gap-4">
+                <MudButton Variant="Variant.Filled" OnClick="Cancel">Cancel</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit">Save</MudButton>
+            </MudItem>
+       </EditForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+    [Parameter]
+    public Notice Notice { get; set; } = new();
+
+    private const long maxFileSize = 5 * 1024 * 1024;
+    IBrowserFile selectedImage { get; set; }
+    string previewBase64data = "";
+    string oldFilePath = "";
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        if(Notice.Photo is null)
+        {
+            Notice.Photo = new();
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(Notice.Photo.PhotoPath))
+            {
+                oldFilePath = Notice.Photo.PhotoPath;
+            }            
+        }
+    }
+
+
+    private async Task OnInputFileChanged(IBrowserFile file)
+    {
+        try
+        {
+            if (file.Size < maxFileSize)
+            {
+                // add extension check
+                var resizedPreviewFile = await file.RequestImageFileAsync(file.ContentType, 200, 100);
+                var buffer = new byte[resizedPreviewFile.Size];
+                using (var previewStream = resizedPreviewFile.OpenReadStream())
+                {
+                    await previewStream.ReadAsync(buffer);
+                    previewBase64data = "data:image/png;base64," + Convert.ToBase64String(buffer);
+
+                    string customImageName = $"notice{DateTime.Now.ToString("yyyyMMddHHmmss")}.{Path.GetExtension(file.Name)}";
+                    Notice.Photo.PhotoPath = Path.Combine(AppSettings.Settings.NoticeFileStorageContainer, customImageName);
+                    selectedImage = file;
+                }
+            }
+            else
+            {
+                _snackBar.Add("Picture size must be less than 5MB", Severity.Error);
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private void Cancel()
+    {
+        Notice.Photo.PhotoPath = oldFilePath;
+        MudDialog.Cancel();
+    }  
+
+    private async Task Sumbit()
+    {
+        if (!string.IsNullOrEmpty(Notice.Photo.PhotoPath) && selectedImage!=null)
+        {
+            using (var fileStream = selectedImage.OpenReadStream(maxAllowedSize: maxFileSize))
+            {
+                await _fileService.Upload(Notice.Photo.PhotoPath, fileStream);
+            }
+
+            if (!string.IsNullOrEmpty(oldFilePath))
+            {
+                _fileService.Delete(oldFilePath);
+            }
+
+            MudDialog.Close(DialogResult.Ok(Notice));
+        }
+        else
+        {
+            _snackBar.Add("Please select a photo.", Severity.Error);
+        }
+    }
+}

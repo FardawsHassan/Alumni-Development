@@ -1,33 +1,17 @@
-﻿@page "/admin/gallery"
+﻿@page "/gallery"
 @using Alumni.Web.Components;
 @inject IGalleryService _galleryService
 @inject ISnackbar _snackBar
 @inject IDialogService _dialogService
-@attribute [Authorize]
-
-<MudItem Style=@(isCollapsedMenu?"padding:30px 7vw":"padding-top:30px;padding-left:50px;")>
+<MudItem Style=@(isCollapsedMenu?"padding:20px 7vw":"padding-top:30px;padding-left:20px;")>
 <MudGrid Class="pt-2 pb-5 pr-2">
-    <AuthorizeView Roles="Admin, Moderator">
-        <MudItem xs="12">
-            <MudButton Style="border: 2px solid darkslategray;" DisableElevation Variant="Variant.Outlined" IconSize="Size.Large" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Error" Size="Size.Medium" OnClick="AddPhoto">Add Photo</MudButton>
-        </MudItem>
-    </AuthorizeView>
-    <MudItem xs="10"></MudItem>
     <MudItem xs="12" Class="pt-2">
         <MudText Class="pb-1" Typo="Typo.h5">All Photos</MudText>
     </MudItem>
      @foreach (var photo in Photos)
     {
-        <MudItem xs="12" md="4" lg="3" Style="padding:7px;position:relative;" Class="photo">
-            <AuthorizeView Roles="Admin, Moderator">
-                <MudItem Class="image-toolbar">
-                <MudIconButton DisableElevation Variant="Variant.Filled" Icon="@Icons.Material.Outlined.RemoveRedEye" Color="Color.Tertiary" />
-                <MudIconButton DisableElevation Variant="Variant.Filled" Icon="@Icons.Material.Outlined.Edit" OnClick="() => EditGallery(photo)" Color="Color.Info" />
-                <MudIconButton DisableElevation Variant="Variant.Filled" Icon="@Icons.Material.Outlined.Delete" OnClick="() => Delete(photo)" Color="Color.Secondary" />
-                </MudItem>
-            </AuthorizeView>
-
-            <MudImage Height="200" Style="width:100%;" ObjectFit="ObjectFit.Cover" Src="@photo.PhotoPath" Alt="@photo.Caption" Class="rounded-lg" />
+        <MudItem xs="12" md="4" lg="3" Style="padding:6.5px;position:relative;" Class="photo">
+                <MudImage Height="200" Style="width:100%;" ObjectFit="ObjectFit.Cover" Src="@photo.PhotoPath" Alt="@photo.Caption" Class="rounded-lg" />
         </MudItem>
     }
 </MudGrid>

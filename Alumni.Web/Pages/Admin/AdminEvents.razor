@@ -1,34 +1,195 @@
 ﻿@page "/admin/event"
+@using Alumni.Web.Components;
+@inject IEventService _eventService
+@inject ISnackbar _snackBar
+@inject IDialogService _dialogService
+@attribute [Authorize]
 
+<MudItem Style=@(isCollapsedMenu?"padding:30px 7vw":"padding-top:30px;padding-left:50px;")>
 <MudGrid Class="pt-2 pb-5 pr-3">
+	<AuthorizeView Roles="Admin,Moderator">
+
     <MudItem xs="12">
-        <MudButton Style="border: 2px solid darkslategray;" DisableElevation Variant="Variant.Outlined" IconSize="Size.Large" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Error" Size="Size.Medium">New Event</MudButton>
-    </MudItem>
+        <MudButton OnClick="AddEvent" Style="border: 2px solid darkslategray;" DisableElevation Variant="Variant.Outlined" IconSize="Size.Large" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Error" Size="Size.Medium">New Event</MudButton>
+	</MudItem>
+    </AuthorizeView>
     <MudItem xs="10"></MudItem>
     <MudItem xs="12" Class="pt-2">
-        <MudText Typo="Typo.h5">All Events</MudText>
+        <MudText Class="pb-1" Typo="Typo.h5">All Events</MudText>
     </MudItem>
-    @foreach (var i in Enumerable.Range(1, 7))
+    @foreach(var _event in Events)
     {
-        <MudItem xs="12" sm="6" md="4" lg="3">
+        @*<MudItem xs="12" sm="6" md="4" lg="3">
             <MudCard Style="border-radius:3px 3px 8px 8px;">
                 <MudToolBar Style="border-radius:2px 2px 0px 0px;background-color:#1e1e2d;" Class="px-2">
                     <MudSpacer />
                     <MudIconButton Icon="@Icons.Material.Outlined.RemoveRedEye" Color="Color.Tertiary" />
-                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" Color="Color.Info" />
-                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Secondary" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(()=>EditEvent(_event))" Color="Color.Info" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=>Delete(_event))" Color="Color.Secondary" />
                 </MudToolBar>
-                <MudCardMedia Image="images/defaultImages/articleDefault.jpg" Height="130" />
+                
                 <MudCardContent>
-                    <MudText Typo="Typo.h5">Old Paint</MudText>
-                    <MudText Typo="Typo.body2">Old paint found on a stone house door.</MudText>
-                    <MudText Typo="Typo.body2">This photo was taken in a small village in Istra Croatia.</MudText>
+                    <MudItem Style="width:100%;">
+                        <MudImage ObjectFit="ObjectFit.Contain" Style="width:100%;" Height="150" Src="@_event.Photo.PhotoPath"></MudImage>
+                    </MudItem>
+                    <MudItem>
+                    <MudText Typo="Typo.h5">@_event.Title</MudText>
+                    </MudItem>
+                    <MudItem>
+                    <MudText Typo="Typo.body2">@_event.Description</MudText>
+                    </MudItem>
                 </MudCardContent>
             </MudCard>
-        </MudItem>
+	    </MudItem>*@
+            <MudItem Class="post">
+                <MudCard Elevation="2" Style="border-radius:3px 3px 8px 8px;min-width:300px;height:auto">
+                    <MudCardContent>
+                        <AuthorizeView Roles="Admin, Moderator">
+                            <MudToolBar Style="border-radius:3px 4px 0px 0;background-image: linear-gradient(to right, #141e30, #243b55);" Class="px-2">
+                                <MudSpacer />
+                                <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(()=>EditEvent(_event))" Color="Color.Info" />
+                                <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=>Delete(_event))" Color="Color.Secondary" />
+                            </MudToolBar>
+                        </AuthorizeView>
+                        <MudItem Style="width:100%;">
+                            <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%;" Height="150" Src="@_event.Photo.PhotoPath"></MudImage>
+                        </MudItem>
+                        <MudItem Class="pt-2 px-3">
+                            <MudText Typo="Typo.h5">@_event.Title</MudText>
+                        </MudItem>
+                        <MudItem Class="px-3">
+                            <MudText Typo="Typo.caption">@_event.PublishedDate.ToString("dd MMMM, yyyy")</MudText>
+                        </MudItem>
+                        @if (!string.IsNullOrEmpty(_event.Description))
+                        {
+                            <MudItem Class="px-3">
+                                <MudText Style="max-height: 340px;" Typo="Typo.body2">@_event.Description.Substring(0,Math.Min(_event.Description.Length,80))@(_event.Description.Length > 80 ? " ..." : "")</MudText>
+                                </MudItem>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
     }
 </MudGrid>
+</MudItem>
 
+<style>
+    .mud-card-content {
+        padding: 0 0 25px 0;
+    }
+
+    .mud-card {
+        height: 100%;
+        height: 338px;
+        max-width: 300px;
+        position: relative;
+    }
+
+    .post:hover .mud-card {
+        box-shadow: var(--mud-elevation-4);
+    }
+
+    p {
+        word-wrap: anywhere;
+    }
+
+    .post .mud-icon-root.mud-svg-icon {
+        fill: white;
+    }
+</style>
 @code {
+        [CascadingParameter]
+        bool isCollapsedMenu { get; set; } = false;
+    private List<Event> Events { get; set; } = new();
+    private DialogOptions _dialogOption = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = false, };
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Events = await _eventService.GetEvents();
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+
+    private async Task AddEvent()
+    {
+        try
+        {
+            var dialog = await _dialogService.ShowAsync<EventPostDialog>("New Event", _dialogOption);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var model = result.Data as Event;
+                var newEvent = await _eventService.AddPost(model);
+                if (newEvent is not null)
+                {
+                    Events.Add(newEvent);
+                    _snackBar.Add("Event added sucessfully", Severity.Success);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task EditEvent(Event _event)
+    {
+        try
+        {
+            var dialogData = new DialogParameters
+                {
+                    ["Event"] = _event,
+                };
+            var dialog = await _dialogService.ShowAsync<EventPostDialog>("Edit Post", dialogData, _dialogOption);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var model = result.Data as Event;
+                var updatedEvent= await _eventService.UpdatePost(model.EventId, model);
+                if (updatedEvent is not null)
+                {
+                    int index = Events.IndexOf(_event);
+                    Events[index] = updatedEvent;
+                    _snackBar.Add("Event updated sucessfully", Severity.Success);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _snackBar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task Delete(Event _event)
+    {
+
+        var parameters = new DialogParameters<ConfirmationDialog>();
+        parameters.Add(x => x.ContentText, !string.IsNullOrEmpty(_event.Title) ? _event.Title : "Event");
+        var dialog = await _dialogService.ShowAsync<ConfirmationDialog>("Delete Post", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await _eventService.DeletePost(_event.EventId);
+
+            if (response.isSuccess)
+            {
+                Events.Remove(_event);
+                _snackBar.Add(response.Message, Severity.Success);
+            }
+            else
+            {
+                _snackBar.Add(response.Message, Severity.Error);
+            }
+        }
+    }
 }

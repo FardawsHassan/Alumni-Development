@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System.Diagnostics;
+using Activity = Alumni.Web.Models.Activity;
 
 namespace Alumni.Web.Data
 {
@@ -37,6 +37,9 @@ namespace Alumni.Web.Data
                     .HasColumnType("nvarchar(20)")
                     .HasConversion(new EnumToStringConverter<Gender>()); ;
 ;
+                entity.Property(e => e.isApproved)
+                    .HasDefaultValue(false)
+                    .IsRequired();
 
                 entity.Property(p => p.BirthDate)
                     .HasColumnType("datetime2");
@@ -359,21 +362,21 @@ namespace Alumni.Web.Data
 
             modelBuilder.Entity<Photo>()
              .HasOne(p => p.Event)
-             .WithMany(pn => pn.Photos)
-             .HasForeignKey(f => f.EventId)
+             .WithOne(pn => pn.Photo)
+             .HasForeignKey<Event>(f => f.EventId)
              .OnDelete(DeleteBehavior.Cascade);
 
 
             modelBuilder.Entity<Photo>()
                 .HasOne(p => p.Activity)
-                .WithMany(pn => pn.Photos)
-                .HasForeignKey(f => f.ActivityId)
+                .WithOne(pn => pn.Photo)
+                .HasForeignKey<Activity>(f => f.ActivityId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Photo>()
                 .HasOne(p => p.Notice)
-                .WithMany(pn => pn.Photos)
-                .HasForeignKey(f => f.NoticeId)
+                .WithOne(pn => pn.Photo)
+                .HasForeignKey<Notice>(f => f.NoticeId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             base.OnModelCreating(modelBuilder);

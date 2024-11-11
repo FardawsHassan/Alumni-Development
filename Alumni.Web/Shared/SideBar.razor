@@ -3,20 +3,7 @@
 @using Alumni.Web.Services
 
 
-<div class="top-row navbar">
-    <div class="container-fluid" style="padding:0">
-        <MudItem Class="d-flex" Style="padding-left:5vw">
-            <MudImage Style="padding-bottom:1px;" Height="58" Width="50" ObjectFit=ObjectFit.Contain Src="images/pust_logo.png"></MudImage>
-            <MudText Style="margin: auto 0 auto 11px" Class="LogoText">CSE</MudText>
-        </MudItem>
-        <MudImage Class="navbar-toggler" @onclick="ToggleNavMenu" Src="images/MenuBar.svg"></MudImage>
-        @*        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-        <span class="navbar-toggler-icon"></span>
-        </button> *@
-    </div>
-</div>
-
-<div class="@NavMenuCssClass nav-scrollable">
+<div class="nav-scrollable" style="position: fixed;width: 20vw;min-width:220px;">
     <nav class="flex-column" style="margin-left:4vw;margin-bottom:75px;">
         <div class="nav-item pr-3 pt-0 mt-7">
             <NavLink class="nav-link d-flex" href="" Match="NavLinkMatch.All">
@@ -169,8 +156,8 @@
     private bool isAdmin = false;
     private bool isAuthenticated = false;
 
-    private bool collapseNavMenu = true;
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    //private bool collapseNavMenu = true;
+    //private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
 
     protected async override Task OnInitializedAsync()
@@ -191,8 +178,8 @@
         //}
     }
 
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
+    //private void ToggleNavMenu()
+    //{
+    //    collapseNavMenu = !collapseNavMenu;
+    //}
 }

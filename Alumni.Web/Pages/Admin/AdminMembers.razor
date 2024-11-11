@@ -1,16 +1,26 @@
 ﻿@page "/admin/member"
+@using Microsoft.AspNetCore.Identity;
+@inject NavigationManager NavigationManager;
+@inject IProfileService ProfileService
+@inject IDialogService DialogService
+@inject ISnackbar SnackBar
+@attribute [Authorize]
+
+<MudItem Style=@(isCollapsedMenu?"padding:5px 7vw":"padding-top:5px;padding-left:50px;")>
 
 <MudGrid Class="pt-4 pl-2 mb-16">
-    <MudItem Class="pl-3" xs="12">
-        <MudBadge Content="3" Overlap="true" Color="Color.Secondary">
-            <MudButton Variant="Variant.Filled" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Person">
-                <MudText>Member Requests</MudText>
-            </MudButton>
-        </MudBadge>
-    </MudItem>
-        <MudItem xs="6" sm="6" md="7" lg="9" xl="10">
-            <MudText Style="margin:auto" Class="pt-1" Typo="Typo.h6">Manage Members</MudText>
+    <AuthorizeView Roles="Admin">
+        <MudItem Class="pl-3" xs="12">
+                <MudBadge Content="@(PendingMembers.Count())" Overlap="true" Color="Color.Secondary">
+                    <MudButton OnClick="ShowPendingMembersList" Variant="Variant.Filled" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Person">
+                        <MudText>Member Requests</MudText>
+                    </MudButton>
+                </MudBadge>
         </MudItem>
+    </AuthorizeView>
+    <MudItem xs="6" sm="6" md="7" lg="9" xl="10">
+        <MudText Style="margin:auto" Class="pt-1" Typo="Typo.h6">Manage Members</MudText>
+    </MudItem>
     <MudItem xs="6" sm="6" md="5" lg="3" xl="2" Class="d-flex">
         <MudItem Style="flex-basis:inherit"></MudItem>
         <MudSelect Dense Style="max-width:255px; min-width:170px;" @bind-Value="SelectedFilter" Label="Filter" Placeholder="Filter By" AdornmentIcon="@Icons.Material.Filled.FilterList" AdornmentColor="Color.Primary">
@@ -19,36 +29,197 @@
             <MudSelectItem Value="@("Roll")">Roll</MudSelectItem>
         </MudSelect>
     </MudItem>
-    @foreach(var item in Enumerable.Range(1,12))
+    @foreach (var member in ApprovedMembers)
     {
-        <MudItem lg="2" md="3" sm="4" xs="6">
+        @*<MudItem lg="2" md="3" sm="4" xs="6">
             <MudItem Class="d-flex justify-content-center">
                 <MudCard Style="width:200px;">
-                    <MudCardMedia Image="images/defaultProfile.jpg" Height="150" />
+                    @if(member.PhotoPath is not null)
+                    {
+                        <MudCardMedia Image="@member.PhotoPath" Height="150" />
+                    }
+                    else
+                    {
+                        <MudCardMedia Image="images/defaultProfile.jpg" Height="150" />
+                    }
                     <MudItem Class="ml-3 mr-3 pt-2">
-                        @if(item%2==0){
-                            <MudText Typo="Typo.body1">Fardaws Hassan Shuvro</MudText>
-                        }
-                        else
-                        {
-                            <MudText Typo="Typo.body1">Ashraful Islam Rakib</MudText>
-                        }
-                        <MudText Typo="Typo.overline">Session: 2017 - 2018</MudText>
+                        <MudText Typo="Typo.body1">@member.FullName</MudText>
+                        <MudText Typo="Typo.overline">Session: @member.Session - @(member.Session + 1)</MudText>
+                        <MudText Class=@(IsModerator(member)?"moderator role":"member role") Typo="Typo.caption">@(IsModerator(member)?"Moderator":"Member")</MudText>
                     </MudItem>
-                    <MudCardActions Class="d-flex justify-content-center gap-3 pb-3">
-                        <MudIconButton Variant="Variant.Outlined" Icon="@Icons.Material.Filled.RemoveRedEye" Size="Size.Small" Color="Color.Tertiary" />
-                        <MudIconButton Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Primary" />
-                        <MudIconButton Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Secondary" />
+                    <MudCardActions Class="d-flex justify-content-center gap-3 pb-3" Style="text-align:center">
+                        <MudItem>
+                            <MudIconButton Href="@($"profile/view/{member.Id}")" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.RemoveRedEye" Size="Size.Small" Color="Color.Tertiary" />
+                            <AuthorizeView Roles="Admin">
+                                <MudIconButton Href="@($"/profile/edit/{member.Id}")" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Primary" />
+                                <MudIconButton OnClick="@(()=>DeleteMember(member))" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Secondary" />
+                                <MudButton OnClick="@(() => ChangeRole(member))" Color=Color.Tertiary StartIcon="@Icons.Material.Filled.AddModerator" Style="font-size:11px" Class="mt-2" DisableElevation Variant=Variant.Filled>@(IsModerator(member) ? "Make Member" : "Make Moderator")</MudButton>
+                            </AuthorizeView>
+                        </MudItem>
                     </MudCardActions>
                 </MudCard>
             </MudItem>
-        </MudItem>
+        </MudItem>*@
+            <MudItem lg="2" md="3" sm="4" xs="6" Class="ma-2" Style=@(isCollapsedMenu?"padding:0 !important;margin-right:30px !important;":"padding:0 !important;margin-right:65px !important;")>
+                    <MudItem Class="d-flex justify-content-right">
+                        <MudCard Style="min-width:235px;padding-bottom:5px;">
+                        <MudCardActions Style="justify-content:right;border-radius:3px 4px 0px 0;background-image: linear-gradient(to right, #141e30, #243b55);" Class="px-2 py-3">
+                                <MudItem>
+                                    <MudIconButton Href="@($"profile/view/{member.Id}")" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.RemoveRedEye" Size="Size.Small" Color="Color.Tertiary" />
+                                    <AuthorizeView Roles="Admin">
+                                        <MudIconButton Href="@($"/profile/edit/{member.Id}")" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Primary" />
+                                        <MudIconButton OnClick="@(()=>DeleteMember(member))" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Secondary" />
+                                    </AuthorizeView>
+                                </MudItem>
+                            </MudCardActions>
+                            @if (member.PhotoPath is not null)
+                            {
+                                <MudCardMedia Image="@member.PhotoPath" Height="150" />
+                            }
+                            else
+                            {
+                                <MudCardMedia Image="images/defaultProfile.jpg" Height="150" />
+                            }
+                            <MudItem Class="ml-3 mr-3 pt-2">
+                                <MudText Typo="Typo.body1">@member.FullName</MudText>
+                                <MudText Typo="Typo.overline">Session: @member.Session - @(member.Session + 1)</MudText>
+                                <MudText Class=@(IsModerator(member)?"moderator role":"member role") Typo="Typo.caption">@(IsModerator(member) ? "Moderator" : "Member")</MudText>
+                            </MudItem>
+                            <AuthorizeView Roles="Admin">
+                                <MudCardActions Style="justify-content:center;border-radius:3px 4px 0px 0;" Class="px-2 pt-2">
+                                    <MudItem>
+                                            <MudButton OnClick="@(() => ChangeRole(member))" Color=Color.Tertiary StartIcon="@Icons.Material.Filled.AddModerator" Style="font-size:11px" Class="mt-2" DisableElevation Variant=Variant.Filled>@(IsModerator(member) ? "Make Member" : "Make Moderator")</MudButton>
+                                    </MudItem>
+                                </MudCardActions>
+                             </AuthorizeView>
+                            </MudCard>
+                        </MudItem>
+                </MudItem>
     }
-    <MudItem xs="12" Class="d-flex justify-content-center">
-        <MudPagination ShowFirstButton="true" ShowLastButton="true" Color=Color.Tertiary Count="11" Class="mt-7" />
-    </MudItem>
 </MudGrid>
+</MudItem>
+<style>
+    .moderator {
+        background: red;
+        color: white;
+    }
+    
+    .member {
+        background: green;
+        color: white;
+    }
+    .role{
+        padding: 3px 11px;
+        font-size: 12px;
+        display: block;
+        width: fit-content;
+        border-radius: 15px;
+    }
+
+    a {
+        text-decoration: none !important;
+    }
+</style>
 
 @code {
+    [CascadingParameter]
+    bool isCollapsedMenu { get; set; } = false;
+    public List<Profile> Members { get; set; } = new ();
+    public List<Profile> PendingMembers{ get; set; } = new ();
+    public List<Profile> ApprovedMembers{ get; set; } = new ();
+    public List<IdentityUser> Moderators{ get; set; } = new();
+
     public string SelectedFilter { get; set; } = "All";
+    private DialogOptions _dialogOption = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true, };
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetMembers();
+        Moderators = await ProfileService.GetModerators();
+    }
+
+    private async Task GetMembers()
+    {
+        Members = await ProfileService.GetProfiles();
+        PendingMembers= Members.Where(x => x.isApproved == false).ToList();
+        ApprovedMembers= Members.Where(x => x.isApproved == true).ToList();
+    }
+
+    private bool IsModerator(Profile profile)
+    {
+        var result = Moderators.Where(x => x.UserName == profile.Email).Count();
+        if (result > 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private async Task ChangeRole(Profile profile)
+    {
+        if (IsModerator(profile))
+        {
+            var result = await ProfileService.MakeMember(profile);
+            if (result.isSuccess)
+            {
+                SnackBar.Add("User is now Member.", Severity.Success);
+                NavigationManager.NavigateTo("/admin/member",true);
+            }
+            else
+            {
+                SnackBar.Add("Could not change to Member", Severity.Error);
+            }
+        }
+        else
+        {
+            var result = await ProfileService.MakeModerator(profile);
+            if (result.isSuccess)
+            {
+                SnackBar.Add("User is now Moderator.", Severity.Success);
+                NavigationManager.NavigateTo("/admin/member", true);
+            }
+            else
+            {
+                SnackBar.Add("Could not change to Moderator", Severity.Error);
+            }
+        }
+    }
+
+    public async Task ShowPendingMembersList()
+    {
+        var dialogData = new DialogParameters
+            {
+                ["PendingMembers"] = PendingMembers,
+            };
+        var dialog = await DialogService.ShowAsync<PendingMembersDialog>("Pending Members", dialogData, _dialogOption);
+        var result = await dialog.Result;
+        await GetMembers();
+        StateHasChanged();
+    }
+
+    private async Task DeleteMember(Profile member)
+    {
+
+        var parameters = new DialogParameters<ConfirmationDialog>();
+        parameters.Add(x => x.ContentText, !string.IsNullOrEmpty(member.FullName) ? member.FullName : "Member");
+        var dialog = await _dialogService.ShowAsync<ConfirmationDialog>("Delete Member", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await ProfileService.DeleteProfile(member.Id);
+
+            if (response.isSuccess)
+            {
+                ApprovedMembers.Remove(member);
+                Members.Remove(member);
+                SnackBar.Add("Member deleted successfully", Severity.Success);
+            }
+            else
+            {
+                SnackBar.Add(response.Message, Severity.Error);
+            }
+        }
+    }
 }
